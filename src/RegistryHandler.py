@@ -4,6 +4,7 @@ import tornado.web
 import MongoHelper
 import json
 import Utils
+import FaceUtils
 
 class RegistryHandler(tornado.web.RequestHandler):
     def get(self):
@@ -12,7 +13,7 @@ class RegistryHandler(tornado.web.RequestHandler):
     def post(self):
         result = {'status': False}
         try:
-            user_id = self.get_argument('userId', '')
+            user_id = self.get_argument('user_id', '')
             user_name = self.get_argument('username', '')
             password = self.get_argument('password', '')
             lang = self.get_argument('lang', 'zh-CN')
@@ -33,6 +34,8 @@ class RegistryHandler(tornado.web.RequestHandler):
             result['status'] = True
             user["_id"] = '';
             result['user'] = user
-            result['access_token'] = Utils.generate_access_token(user_id)
+            result['token'] = Utils.generate_access_token(user_id)
+            
+            FaceUtils.train_default(user_id)
         finally:
             self.write(json.dumps(result))

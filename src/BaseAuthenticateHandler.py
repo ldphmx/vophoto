@@ -7,38 +7,37 @@ import Utils
 
 class BaseAuthenticateHandler(tornado.web.RequestHandler):
     def get(self):
-        if self.isValid():
-            self.doGet()
+        if self.is_valid():
+            self.do_get()
         else:
-            self.outputError()
+            self.output_error()
         
     
-    def isValid(self):
+    def is_valid(self):
         if self.pass_auth():
             return True
         
-        result = False
         token = self.get_argument('token', '')
-        user_id = self.get_argument('userId', '')
+        user_id = self.get_argument('user_id', '')
         if token == '' or token != Utils.generate_access_token(user_id):
             return False
         else:
             return True
         
-    def outputError(self):
+    def output_error(self):
         self.write({'status:': False})
     
     def post(self):
-        if self.isValid():
-            self.doPost()
+        if self.is_valid():
+            self.do_post()
         else:
-            self.outputError()
+            self.output_error()
           
     def pass_auth(self):
         return False
       
-    def doGet(self):
+    def do_get(self):
         pass
     
-    def doPost(self):
+    def do_post(self):
         pass

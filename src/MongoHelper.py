@@ -45,8 +45,7 @@ def increase_server_usage(server_name, count):
 def save_image(image):
     db = conn.VoiceImageDB
     coll = db.voice_images
-    doc = {'image_name': image['image_name'], 'loc': image['loc'], 'desc':image['desc'], 'processed': False}
-    coll.save(doc)
+    coll.save(image)
     
 def get_unprocessed(num):
     images = []
@@ -54,7 +53,12 @@ def get_unprocessed(num):
     coll = db.voice_images
     unpro = coll.find({'processed': False})
     for doc in unpro:
-        img = {'image_name': doc['image_name'], 'loc': doc['loc'], 'desc': doc['desc']}
-        images.append(img)
+        images.append(doc)
     
     return images
+
+def save_person(person):
+    db = conn.VoiceImageDB
+    coll = db.user_facename
+    coll.save(person)
+

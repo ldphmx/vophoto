@@ -6,24 +6,25 @@ import Utils
 import MongoHelper
 
 class UploadHandler(BaseAuthenticateHandler.BaseAuthenticateHandler):   
-    def doPost(self):
+    def do_post(self):
         result = {'status': False}
         try:
-            userId = self.get_argument('userId', '')
+            userId = self.get_argument('user_id', '')
             location = self.get_argument('loc', '')
             desc = self.get_argument('desc', '')
-            path = Utils.create_user_path(userId)
-            files = self.request.files['search']
+            time = self.get_argument('time', '')
+            path = Utils.get_user_path(userId)
+            files = self.request.files['image']
             if files is None or len(files) == 0:
                 return
             
-            fileinfo = self.request.files['search'][0]
+            fileinfo = files[0]
             fname = fileinfo['filename']
             fh = open(path + "/" + fname, 'wb')
             fh.write(fileinfo['body'])
             result['status'] = True
             
-            image = {'image_name': fname, 'loc': location, 'desc': desc}
+            image = {'user_id': userId, 'image_name': fname, 'loc': location, 'desc': desc, 'time':time, 'processed': False}
             MongoHelper.save_image(image)
         finally:
             self.write(json.dumps(result))
