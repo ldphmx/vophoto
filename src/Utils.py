@@ -9,7 +9,7 @@ from xpinyin import Pinyin
 from pymemcache.client.base import Client
 
 pinyin = Pinyin()
-mc = Client((Config.config['memcached_host'], 11211))
+mc = Client((Config.config['memcached_url'], 11211))
 
 def get_user_path(userId):
     md5ins = md5.new()

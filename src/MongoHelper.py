@@ -3,7 +3,7 @@
 import pymongo
 import Config
 
-conn = pymongo.MongoClient(Config.config['mongo_url'])
+conn = pymongo.MongoClient(Config.config['mongo_host'])
 
 def get_user(userId, password):
     db = conn.VoiceImageDB
