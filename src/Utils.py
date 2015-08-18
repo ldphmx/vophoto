@@ -4,10 +4,12 @@ import Config
 import md5
 import os
 import MongoHelper
-import memcache
 import cPickle as pickle
+from xpinyin import Pinyin
+from pymemcache.client.base import Client
 
-mc = memcache.Client([Config.config['memcached_url']], debug=0)
+pinyin = Pinyin()
+mc = Client((Config.config['memcached_host'], 11211))
 
 def get_user_path(userId):
     md5ins = md5.new()
@@ -88,9 +90,10 @@ def update_user_photo_indexer(user_id, image):
     image_name = image['image_name']
     
     for t in tags:
-        photo_list = indexer.get(t, [])
+        pt = pinyin.get_pinyin(t, '')
+        photo_list = indexer.get(pt, [])
         photo_list.append(image_name)
-        indexer[t] = photo_list
+        indexer[pt] = photo_list
     
     with open(filename,'wb') as fp:
         pickle.dump(indexer,fp)
@@ -129,9 +132,10 @@ def get_human_names(raw):
     
 
 if __name__ == "__main__":
-    image = {'tags': ['a','b'], 'image_name':'y.jpg'}
-    update_user_photo_indexer('xxx', image)
-    print get_user_photo_indexer('xxx')
+    print pinyin.get_pinyin(u'测试test', '')
+#     image = {'tags': ['a','b'], 'image_name':'y.jpg'}
+#     update_user_photo_indexer('xxx', image)
+#     print get_user_photo_indexer('xxx')
     
     
     
