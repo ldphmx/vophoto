@@ -45,7 +45,7 @@ def allocate_user_server(userId):
 def generate_access_token(userId):
     md5ins = md5.new()
     md5ins.update(userId)
-    md5ins.update(Config.config['token'])
+    md5ins.update(Config.config['access_token'])
     return md5ins.hexdigest()
 
 def get_meaningful_keywords(key_words):
