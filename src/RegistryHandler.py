@@ -14,7 +14,7 @@ class RegistryHandler(tornado.web.RequestHandler):
         result = {'status': False}
         try:
             user_id = self.get_argument('user_id', '')
-            user_name = self.get_argument('username', '')
+            user_name = self.get_argument('user_name', '')
             password = self.get_argument('password', '')
             lang = self.get_argument('lang', 'zh-CN')
             if user_id == '' or user_name == '' or password == '':
