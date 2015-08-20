@@ -62,3 +62,13 @@ def save_person(person):
     coll = db.user_facename
     coll.save(person)
 
+###########added by yisha####################
+# search in db for img of input user_id
+def get_images_by_user(user_id):
+    images = []
+    db = conn.VoiceImageDB
+    coll = db.voice_images
+    user_img = coll.find({'user_id':user_id})
+    for img in user_img:
+        images.append(img)
+    return images
