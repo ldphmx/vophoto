@@ -72,3 +72,5 @@ def get_images_by_user(user_id):
     for img in user_img:
         images.append(img)
     return images
+    
+    
