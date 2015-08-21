@@ -128,7 +128,21 @@ def get_human_names(raw):
         
     return keys
 
-    
+###########added by yisha####################
+# search in db for nearby img
+# input float latitude longitude 
+def get_images_by_location(user_id, latitude, longitude, distance=0.01):
+    image_sort = []
+    image_unsort = []
+    user_img = MongoHelper.get_images_by_user(user_id)
+    for img in user_img:
+        abs_lat = abs(img['lat'] - latitude)
+        abs_lon = abs(img['lon'] - longitude)
+        if abs_lat < distance & abs_lon < distance:
+            temp = ((abs_lat + abs_lon), img)
+            image_unsort.append(temp)
+    image_sort = sorted(image_unsort, key=lambda img: img[0])
+    return image_sort
 
 if __name__ == "__main__":
     print(pypinyin.slug((u'测试test')))

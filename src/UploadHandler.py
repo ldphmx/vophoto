@@ -10,7 +10,8 @@ class UploadHandler(BaseAuthenticateHandler.BaseAuthenticateHandler):
         result = {'status': False}
         try:
             userId = self.get_argument('user_id', '')
-            location = self.get_argument('loc', '')
+            latitude = self.get_argument('lat', '')
+            longitude = self.get_argument('lon', '')
             desc = self.get_argument('desc', '')
             time = self.get_argument('time', '')
             path = Utils.get_user_path(userId)
@@ -24,7 +25,7 @@ class UploadHandler(BaseAuthenticateHandler.BaseAuthenticateHandler):
             fh.write(fileinfo['body'])
             result['status'] = True
             
-            image = {'user_id': userId, 'image_name': fname, 'loc': location, 'desc': desc, 'time':time, 'processed': False}
+            image = {'user_id': userId, 'image_name': fname, 'lat': float(latitude), 'lon': float(longitude), 'desc': desc, 'time':time, 'processed': False}
             MongoHelper.save_image(image)
         finally:
             self.write(json.dumps(result))
