@@ -1,9 +1,9 @@
 #Encoding=UTF8
 
 import tornado.web
-from src import MongoHelper
+import MongoHelper
 import json
-from src import Utils
+import Utils
 
 class RegistryHandler(tornado.web.RequestHandler):
     def get(self):
