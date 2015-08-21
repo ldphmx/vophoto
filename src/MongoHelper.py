@@ -1,7 +1,7 @@
 #Encoding=UTF8
 
 import pymongo
-import Config
+from src import Config
 
 conn = pymongo.MongoClient(Config.config['mongo_url'])
 
@@ -148,8 +148,8 @@ def get_similar_candidates_rec(user_id, person_ids):
     return similars
 
 if __name__ == "__main__":
-    print get_similee_candidates_rec('wang', ['d6ca4db4-f1a3-49c1-8609-b111ecc4df57'])
-    print get_similar_candidates_rec('wang', ['082aca8c-c441-4cc3-a696-9d13ea391f6d'])
+    print(get_similee_candidates_rec('wang', ['d6ca4db4-f1a3-49c1-8609-b111ecc4df57']))
+    print(get_similar_candidates_rec('wang', ['082aca8c-c441-4cc3-a696-9d13ea391f6d']))
     
     
     

@@ -1,9 +1,9 @@
 #Encoding=UTF8
 
 import json
-import BaseAuthenticateHandler
-import Utils
-import MongoHelper
+from src import BaseAuthenticateHandler
+from src import Utils
+from src import MongoHelper
 
 class UploadHandler(BaseAuthenticateHandler.BaseAuthenticateHandler):   
     def do_post(self):

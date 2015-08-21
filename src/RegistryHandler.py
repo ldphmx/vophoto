@@ -1,10 +1,9 @@
 #Encoding=UTF8
 
 import tornado.web
-import MongoHelper
+from src import MongoHelper
 import json
-import Utils
-import FaceUtils
+from src import Utils
 
 class RegistryHandler(tornado.web.RequestHandler):
     def get(self):
@@ -36,6 +35,5 @@ class RegistryHandler(tornado.web.RequestHandler):
             result['user'] = user
             result['token'] = Utils.generate_access_token(user_id)
             
-            FaceUtils.train_default(user_id)
         finally:
             self.write(json.dumps(result))

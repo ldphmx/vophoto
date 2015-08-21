@@ -1,15 +1,14 @@
 #Encoding=UTF8
 
-import Config
-import md5
+from src import Config
+from hashlib import md5
 import os
-import MongoHelper
-import cPickle as pickle
-from xpinyin import Pinyin
+from src import MongoHelper
+import pickle
+import pypinyin
 from pymemcache.client.base import Client
 
-pinyin = Pinyin()
-mc = Client((Config.config['memcached_url'], 11211))
+mc = Client((Config.config['memcached_host'], 11211))
 
 def get_user_path(userId):
     md5ins = md5.new()
@@ -90,7 +89,7 @@ def update_user_photo_indexer(user_id, image):
     image_name = image['image_name']
     
     for t in tags:
-        pt = pinyin.get_pinyin(t, '')
+        pt = pypinyin.slug(t)
         photo_list = indexer.get(pt, [])
         photo_list.append(image_name)
         indexer[pt] = photo_list
@@ -132,7 +131,7 @@ def get_human_names(raw):
     
 
 if __name__ == "__main__":
-    print pinyin.get_pinyin(u'测试test', '')
+    print(pypinyin.slug((u'测试test')))
 #     image = {'tags': ['a','b'], 'image_name':'y.jpg'}
 #     update_user_photo_indexer('xxx', image)
 #     print get_user_photo_indexer('xxx')

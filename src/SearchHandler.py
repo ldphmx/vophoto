@@ -1,10 +1,10 @@
 #Encoding=UTF8
 
 import tornado.web
-import MongoHelper
+from src import MongoHelper
 import json
-import Utils
-import BaseAuthenticateHandler
+from src import Utils
+from src import BaseAuthenticateHandler
 
 class SearchHandler(BaseAuthenticateHandler.BaseAuthenticateHandler):
     def post(self):

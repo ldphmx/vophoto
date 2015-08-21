@@ -3,7 +3,7 @@
 import re
 import datetime
 import calendar
-from _ast import Num
+from src import Logger
 
 ############ abs
 # 2014年_nt 的_u 照片_n
@@ -25,7 +25,7 @@ from _ast import Num
 # 前年_nt 的_u 照片_n
 
 def do_parse_raw_year(regex, date_str):
-    print 'do parse: ' + regex + " - " + date_str
+    Logger.debug('do parse: ' + regex + " - " + date_str)
     m = re.search(regex, date_str)
     if not m:
         return None
@@ -34,22 +34,22 @@ def do_parse_raw_year(regex, date_str):
     return (year, year)
 
 def do_parse_last_year(regex, date_str):
-    print 'do parse: ' + regex + " - " + date_str
+    Logger.debug('do parse: ' + regex + " - " + date_str)
     start = datetime.date.today()
     return (start.year - 1, start.year - 1)
 
 def do_parse_this_year(regex, date_str):
-    print 'do parse: ' + regex + " - " + date_str
+    Logger.debug('do parse: ' + regex + " - " + date_str)
     start = datetime.date.today()
     return (start.year, start.year)
 
 def do_parse_last2_year(regex, date_str):
-    print 'do parse: ' + regex + " - " + date_str
+    Logger.debug('do parse: ' + regex + " - " + date_str)
     start = datetime.date.today()
     return (start.year - 2, start.year - 2)
 
 def do_parse_raw_month(regex, date_str):
-    print 'do parse: ' + regex + " - " + date_str
+    Logger.debug('do parse: ' + regex + " - " + date_str)
     m = re.search(regex, date_str)
     if not m:
         return None
@@ -58,7 +58,7 @@ def do_parse_raw_month(regex, date_str):
     return (month, month)
 
 def do_parse_last_month(regex, date_str):
-    print 'do parse: ' + regex + " - " + date_str
+    Logger.debug('do parse: ' + regex + " - " + date_str)
     start = datetime.date.today()
     day = start.day
     delta = datetime.timedelta(days=day + 1)
@@ -67,23 +67,23 @@ def do_parse_last_month(regex, date_str):
     return (start.year, start.month, 1, start.year, start.month, ndays)
 
 def do_parse_spring(regex, date_str):
-    print 'do parse: ' + regex + " - " + date_str
+    Logger.debug('do parse: ' + regex + " - " + date_str)
     return (2, 5)
 
 def do_parse_summer(regex, date_str):
-    print 'do parse: ' + regex + " - " + date_str
+    Logger.debug('do parse: ' + regex + " - " + date_str)
     return (5, 8)
 
 def do_parse_autumn(regex, date_str):
-    print 'do parse: ' + regex + " - " + date_str
+    Logger.debug('do parse: ' + regex + " - " + date_str)
     return (8, 10)
 
 def do_parse_winter(regex, date_str):
-    print 'do parse: ' + regex + " - " + date_str
+    Logger.debug('do parse: ' + regex + " - " + date_str)
     return (10, 12)
 
 def do_parse_raw_day(regex, date_str):
-    print 'do parse: ' + regex + " - " + date_str
+    Logger.debug('do parse: ' + regex + " - " + date_str)
     m = re.search(regex, date_str)
     if not m:
         return None
@@ -92,7 +92,7 @@ def do_parse_raw_day(regex, date_str):
     return (day, day)
 
 def do_parse_recent(regex, date_str):
-    print 'do parse: ' + regex + " - " + date_str
+    Logger.debug('do parse: ' + regex + " - " + date_str)
     now = datetime.date.today()
     delta = datetime.timedelta(days=7)
     start = now - delta
@@ -100,7 +100,7 @@ def do_parse_recent(regex, date_str):
     return (start.year, start.month, start.day, now.year, now.month, now.day)
 
 def do_parse_n_recent(regex, date_str):
-    print 'do parse: ' + regex + " - " + date_str
+    Logger.debug('do parse: ' + regex + " - " + date_str)
     now = datetime.date.today()
     m = re.search(regex, date_str)
     if not m:
@@ -116,7 +116,7 @@ def do_parse_n_recent(regex, date_str):
     return (start.year, start.month, start.day, now.year, now.month, now.day)
 
 def do_parse_last_weekday(regex, date_str):
-    print 'do parse: ' + regex + " - " + date_str
+    Logger.debug('do parse: ' + regex + " - " + date_str)
     now = datetime.date.today()
     wd = calendar.weekday(now.year, now.month, now.day)
     m = re.search(regex, date_str)
@@ -138,7 +138,7 @@ def do_parse_last_weekday(regex, date_str):
     
 
 def do_parse_last_n_week(regex, date_str):
-    print 'do parse: ' + regex + " - " + date_str
+    Logger.debug('do parse: ' + regex + " - " + date_str)
     now = datetime.date.today()
     m = re.search(regex, date_str)
     if not m:
@@ -157,12 +157,12 @@ def do_parse_last_n_week(regex, date_str):
     return (start.year, start.month, start.day, now.year, now.month, now.day)
 
 def do_parse_today(regex, date_str):
-    print 'do parse: ' + regex + " - " + date_str
+    Logger.debug('do parse: ' + regex + " - " + date_str)
     start = datetime.date.today()
     return (start.year, start.month, start.day, start.year, start.month, start.day)
 
 def do_parse_lastday(regex, date_str):
-    print 'do parse: ' + regex + " - " + date_str
+    Logger.debug('do parse: ' + regex + " - " + date_str)
     now = datetime.date.today()
     delta = datetime.timedelta(days=1)
     start = now - delta
@@ -301,9 +301,9 @@ if __name__ == "__main__":
 #     print parse_nl_date([u'秋天'])
 #     print parse_nl_date([u'冬天'])
     
-    print parse_nl_date([u'2104年',u'3月'])
-    print parse_nl_date([u'2104年',u'夏天'])
-    print parse_nl_date([u'去年',u'冬天'])
+    Logger.debug(parse_nl_date([u'2104年',u'3月']))
+    Logger.debug(parse_nl_date([u'2104年',u'夏天']))
+    Logger.debug(parse_nl_date([u'去年',u'冬天']))
     
     
 #     print parse_nl_date([u'3月'])

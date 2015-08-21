@@ -1,8 +1,6 @@
 eclipse.preferences.version=1
 encoding//src/BaseAuthenticateHandler.py=UTF8
 encoding//src/Config.py=UTF8
-encoding//src/FaceUtils.py=UTF8
-encoding//src/ImageProcessor.py=UTF8
 encoding//src/LoginHandler.py=UTF8
 encoding//src/MongoHelper.py=UTF8
 encoding//src/NLPTimeConvertor.py=UTF8
