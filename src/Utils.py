@@ -139,7 +139,7 @@ def get_images_by_location(user_id, latitude, longitude):
     for img in user_img:
         abs_lat = abs(img['lat'] - latitude)
         abs_lon = abs(img['lon'] - longitude)
-        if abs_lat < 0.01 & abs_lon < 0.01:
+        if abs_lat < 0.001 & abs_lon < 0.001:
             temp = ((abs_lat + abs_lon), img)
             image_unsort.append(temp)
     image_sort = sorted(image_unsort, key=lambda img: img[0])
