@@ -132,14 +132,14 @@ def get_human_names(raw):
 ###########added by yisha####################
 # search in db for nearby img
 # input float latitude longitude 
-def get_images_by_location(user_id, latitude, longitude):
+def get_images_by_location(user_id, latitude, longitude, distance=0.01):
     image_sort = []
     image_unsort = []
     user_img = MongoHelper.get_images_by_user(user_id)
     for img in user_img:
         abs_lat = abs(img['lat'] - latitude)
         abs_lon = abs(img['lon'] - longitude)
-        if abs_lat < 0.001 & abs_lon < 0.001:
+        if abs_lat < distance & abs_lon < distance:
             temp = ((abs_lat + abs_lon), img)
             image_unsort.append(temp)
     image_sort = sorted(image_unsort, key=lambda img: img[0])
