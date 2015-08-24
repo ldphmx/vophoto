@@ -158,6 +158,17 @@ def get_similar_candidates_rec(user_id, person_ids):
         index = index + 1
 
     return similars
+    
+###########added by yisha####################
+# check whether img exist
+def check_img_exist(user_id, input_img):
+    db = conn.VoiceImageDB
+    coll = db.voice_images
+    images = coll.find({'user_id':user_id})
+    for image in images:
+        if input_img is image['image_name']:
+            return True
+    return False
 
 if __name__ == "__main__":
     print(get_similee_candidates_rec('wang', ['d6ca4db4-f1a3-49c1-8609-b111ecc4df57']))
