@@ -21,6 +21,11 @@ class UploadHandler(BaseAuthenticateHandler.BaseAuthenticateHandler):
             
             fileinfo = files[0]
             fname = fileinfo['filename']
+            
+            if check_img_exist(userId, fname):
+                self.write(json.dumps(result))
+                return
+            
             fh = open(path + "/" + fname, 'wb')
             fh.write(fileinfo['body'])
             result['status'] = True
