@@ -14,6 +14,12 @@ class SearchHandler(BaseAuthenticateHandler.BaseAuthenticateHandler):
             raw = self.get_argument('raw', '')
             # 我_r 想_v 找_v 去年_nt 夏天_nt 在_p 西雅图_ns 农贸市场_n 的_u 照片_n
             
+        ######added by peigang###
+            token = self.get_argument('token','')
+            user = MongoHelper.get_user_by_id(user_id)
+            if token != user['token']:
+                return
+        ######added by peigang###
             if user_id == '' or raw == '':
                 return
             
