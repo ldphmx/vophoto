@@ -17,6 +17,12 @@ class UploadHandler(BaseAuthenticateHandler.BaseAuthenticateHandler):
             desc = self.get_argument('desc', '')
             rawTags = self.get_argument('tag', '')
             rowTime = self.get_argument('time', '')
+        ######added by peigang###
+            token = self.get_argument('token','')
+            user = MongoHelper.get_user_by_id(userId)
+            if token != user['token']:
+                return
+        ######added by peigang###
             path = Utils.get_user_path(userId)
             files = self.request.files['image']
             
