@@ -13,6 +13,7 @@ class UploadHandler(BaseAuthenticateHandler.BaseAuthenticateHandler):
             latitude = self.get_argument('lat', '')
             longitude = self.get_argument('lon', '')
             desc = self.get_argument('desc', '')
+            rawTags = self.get_argument('tag', '')
             time = self.get_argument('time', '')
             path = Utils.get_user_path(userId)
             files = self.request.files['image']
@@ -30,7 +31,13 @@ class UploadHandler(BaseAuthenticateHandler.BaseAuthenticateHandler):
             fh.write(fileinfo['body'])
             result['status'] = True
             
-            image = {'user_id': userId, 'image_name': fname, 'lat': float(latitude), 'lon': float(longitude), 'desc': desc, 'time':time, 'processed': False}
+            # filter out meaningful tags
+            key_words = rawTags.split(' ')
+            if key_words is None or len(key_words) == 0:
+                return
+            tags = Utils.get_meaningful_keywords(key_words)
+            
+            image = {'user_id': userId, 'image_name': fname, 'lat': float(latitude), 'lon': float(longitude), 'desc': desc, 'tags': tags, 'time':time, 'processed': False}
             MongoHelper.save_image(image)
         finally:
             self.write(json.dumps(result))
