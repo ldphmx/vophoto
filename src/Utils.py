@@ -129,10 +129,11 @@ def get_human_names(raw):
     return keys
 
 ###########added by yisha####################
-# search in db for nearby img
-# input float latitude longitude 
-def get_images_by_location(user_id, latitude, longitude, distance=0.01):
-    image_sort = []
+'''
+Search in db for nearby img by location
+@return: sorted image dictionary by distance  
+'''
+def get_images_by_location(user_id, latitude, longitude, distance=1):
     image_unsort = []
     user_img = MongoHelper.get_images_by_user(user_id)
     for img in user_img:
@@ -142,6 +143,21 @@ def get_images_by_location(user_id, latitude, longitude, distance=0.01):
             temp = ((abs_lat + abs_lon), img)
             image_unsort.append(temp)
     image_sort = sorted(image_unsort, key=lambda img: img[0])
+    return image_sort
+
+'''
+Search in db for img with input tags
+@return: sorted image dictionary by tags, ordered by time
+'''
+def get_images_by_tag(user_id, input_tags):
+    image_unsort = []
+    tags = set(input_tags)
+    user_img = MongoHelper.get_images_by_user(user_id)
+    for img in user_img:
+        user_tags = set(user_img[tags])
+        if tags.issubset(user_tags):
+            image_unsort.append(img)
+    image_sort = sorted(image_unsort, key=lambda img: img[6], reversed=True)   #time object at 6 index in image dictionary
     return image_sort
 
 if __name__ == "__main__":
