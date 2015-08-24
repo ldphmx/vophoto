@@ -22,7 +22,9 @@ class SearchHandler(BaseAuthenticateHandler.BaseAuthenticateHandler):
                 return
             
             meaningful = Utils.get_meaningful_keywords(key_words)
-            
+            image  = Utils.get_images_by_tag(user_id, meaningful)
+            result['status'] = True
+            result['image'] = image['image_name']
             
         finally:
             self.write(json.dumps(result))
