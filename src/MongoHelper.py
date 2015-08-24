@@ -68,8 +68,7 @@ def get_images_by_user(user_id):
     images = []
     db = conn.VoiceImageDB
     coll = db.voice_images
-#    user_img = coll.find({'user_id':user_id})
-    user_img = coll.find({'user_id':user_id},{'lat':1,'lon':1,'image_name':1})        ##updated by peigang##
+    user_img = coll.find({'user_id':user_id})
     for img in user_img:
         images.append(img)
     return images
