@@ -60,6 +60,18 @@ def get_meaningful_keywords(key_words):
     
     return keys
 
+##added by peigang
+def get_location_from_rawlocation(key_location):
+    location = {}
+    location['longitude'] = key_location[0]
+    location['latitude'] = key_location[1]
+    return location
+        
+def get_tag_from_rawlocation(key_location):
+    tags = key_location[2:]
+    return tags
+##added by peigang
+
 def get_user_photo_indexer(user_id):
     indexer = mc.get(user_id)
     if indexer is not None:
@@ -136,6 +148,24 @@ Search in db for nearby img by location
 def get_images_by_location(user_id, latitude, longitude, distance=1):
     image_unsort = []
     user_img = MongoHelper.get_images_by_user(user_id)
+    location = user_img['location']           #update by peigang
+    for img in user_img:
+        abs_lat = abs(location['latitude'] - latitude)     #update by peigang
+        abs_lon = abs(location['longitude'] - longitude)   #update by peigang
+        if abs_lat < distance & abs_lon < distance:
+            temp = ((abs_lat + abs_lon), img)
+            image_unsort.append(temp)
+    image_sort = sorted(image_unsort, key=lambda img: img[0])
+    return image_sort[1]            #update by peigang
+
+'''
+Search in db for img with input tags
+@return: sorted image dictionary by tags, ordered by time
+'''
+##added by peigang
+def get_images_by_location_from_photos(latitude, longitude,certain_photo,distance=1):
+    image_unsort = []
+    user_img = certain_photo
     for img in user_img:
         abs_lat = abs(img['lat'] - latitude)
         abs_lon = abs(img['lon'] - longitude)
@@ -143,12 +173,9 @@ def get_images_by_location(user_id, latitude, longitude, distance=1):
             temp = ((abs_lat + abs_lon), img)
             image_unsort.append(temp)
     image_sort = sorted(image_unsort, key=lambda img: img[0])
-    return image_sort
+    return image_sort[1]                               
+##added by peigang
 
-'''
-Search in db for img with input tags
-@return: sorted image dictionary by tags, ordered by time
-'''
 def get_images_by_tag(user_id, input_tags):
     image_unsort = []
     tags = set(input_tags)
