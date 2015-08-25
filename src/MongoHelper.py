@@ -16,6 +16,14 @@ def get_user_by_id(userId):
     rec = coll.find_one({'user_id': userId})
     return rec;
 
+###added by peigang###
+def update_user_token(userId,newToken):
+    db = conn.VoiceImageDB
+    coll = db.user_profile
+    doc = coll.find_one()
+    doc['token']=newToken
+    coll.save(doc)
+
 def register_user(user):
     db = conn.VoiceImageDB
     coll = db.user_profile
