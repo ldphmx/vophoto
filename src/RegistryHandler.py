@@ -28,15 +28,14 @@ class RegistryHandler(tornado.web.RequestHandler):
             user = {'user_id': user_id, 'user_name': user_name, 'password': password, 'lang': lang}
             server = Utils.allocate_user_server(user_id)
             user['server'] = server
+            user['token'] = Utils.generate_access_token(user_id)   #added by peigang
             MongoHelper.register_user(user)
             MongoHelper.increase_server_usage(server, 1)
             result['status'] = True
             user["_id"] = '';
             result['user'] = user
             result['token'] = Utils.generate_access_token(user_id)
-            ###added by peigang###
-            user['token'] = result['token'] 
-            ###added by peigang###
+            
             
         finally:
             self.write(json.dumps(result))
