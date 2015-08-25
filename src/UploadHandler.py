@@ -12,11 +12,13 @@ class UploadHandler(BaseAuthenticateHandler.BaseAuthenticateHandler):
         result = {'status': False}
         try:
             userId = self.get_argument('user_id', '')
-            latitude = self.get_argument('lat', '')
-            longitude = self.get_argument('lon', '')
+            rawLocation = self.get_argument('loc','')
+            # latitude = self.get_argument('lat', '')
+            # longitude = self.get_argument('lon', '')
             desc = self.get_argument('desc', '')
             rawTags = self.get_argument('tag', '')
             rowTime = self.get_argument('time', '')
+             clientLocation = self.get_argument('clocat','')  #add by peigang
         ######added by peigang###
             token = self.get_argument('token','')
             user = MongoHelper.get_user_by_id(userId)
@@ -46,8 +48,16 @@ class UploadHandler(BaseAuthenticateHandler.BaseAuthenticateHandler):
             
             # split date and time
             time = datetime.strptime(rowTime, '%Y-%m-%d %X %z')
+            ##added by peigang
+            key_location = rawLocation.split(',')                       
+            if key_location is None or len(key_location) == 0:
+                return
+            location = Utils.get_location_from_rawlocation(key_location)
+            raw_location_tag = Utils.get_tag_from_rawlocation(key_location)
+            tags.extend(raw_location_tag)
             
-            image = {'user_id': userId, 'image_name': fname, 'lat': float(latitude), 'lon': float(longitude), 'desc': desc, 'tags': tags, 'time':time, 'processed': False}
+            #update client_loc and location
+            image = {'user_id': userId, 'image_name': fname, 'client_loc': clientLocation,'location':location, 'desc': desc, 'tags': tags, 'time':time, 'processed': False}
             MongoHelper.save_image(image)
             result['status'] = True
         finally:
