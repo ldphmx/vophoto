@@ -34,6 +34,9 @@ class RegistryHandler(tornado.web.RequestHandler):
             user["_id"] = '';
             result['user'] = user
             result['token'] = Utils.generate_access_token(user_id)
+            ###added by peigang###
+            user['token'] = result['token'] 
+            ###added by peigang###
             
         finally:
             self.write(json.dumps(result))

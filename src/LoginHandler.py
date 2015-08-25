@@ -20,7 +20,10 @@ class LoginHandler(tornado.web.RequestHandler):
                 return
             else:
                 result['status'] = True
-                result['user'] = user
+            ###    result['user'] = user   ###
                 result['token'] = Utils.generate_access_token(user_id)
+                ###added by peigang###
+                user['token'] = result['token']
+                ###added by peigang###
         finally:
             self.write(json.dumps(result))
