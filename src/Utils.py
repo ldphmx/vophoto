@@ -154,7 +154,7 @@ def get_images_by_tag(user_id, input_tags):
     tags = set(input_tags)
     user_img = MongoHelper.get_images_by_user(user_id)
     for img in user_img:
-        user_tags = set(user_img[tags])
+        user_tags = set(user_img['tags'])
         if tags.issubset(user_tags):
             image_unsort.append(img)
     image_sort = sorted(image_unsort, key=lambda img: img[6], reversed=True)   #time object at 6 index in image dictionary
