@@ -80,17 +80,17 @@ def get_person_id(user_id, name):
     coll = db.person_list
     unpro = coll.find({'user_id': user_id, 'name': name})
     for doc in unpro:
-        person_ids.add(doc['person_id'])
+        person_ids.add(doc['face_id'])
     
     return person_ids
     
 def get_similar_persons(user_id, persons):
     person_ids = set()
     for p in persons:
-        person_ids = get_person_id(user_id, p)
+        person_ids |= get_person_id(user_id, p)
     
-    similars = get_similar_candidates(user_id, person_ids)
-    similees = get_similee_candidates(user_id, person_ids)
+    similars = get_similar_candidates_rec(user_id, person_ids)
+    similees = get_similee_candidates_rec(user_id, person_ids)
     
     return person_ids | similars | similees
     
@@ -99,7 +99,7 @@ def get_similee_candidates(user_id, person_id):
     db = conn.VoiceImageDB
     coll = db.person_list
 
-    doc = coll.find_one({'user_id': user_id, 'person_id': person_id})
+    doc = coll.find_one({'user_id': user_id, 'face_id': person_id})
     if not doc:
         return similees
     
@@ -107,14 +107,14 @@ def get_similee_candidates(user_id, person_id):
     if not candidates:
         return similees
     
-    candi = [i['personId'] for i in candidates]
+    candi = [i['faceId'] for i in candidates]
     for c in candi:
         similees.add(c)
         
     return similees
     
 def get_similee_candidates_rec(user_id, person_ids):
-    similees = person_ids
+    similees = list(person_ids)
     index = 0
     
     while index < len(similees):
@@ -126,7 +126,7 @@ def get_similee_candidates_rec(user_id, person_ids):
                 
         index = index + 1
         
-    return similees
+    return set(similees)
     
 def get_similar_candidates(user_id, person_id):
     similars = set()
@@ -138,14 +138,14 @@ def get_similar_candidates(user_id, person_id):
         if not candidates:
             continue
         
-        candi = [i['personId'] for i in candidates]
+        candi = [i['faceId'] for i in candidates]
         if person_id in candi:
-            similars.add(doc['person_id'])
+            similars.add(doc['face_id'])
 
     return similars
     
 def get_similar_candidates_rec(user_id, person_ids):
-    similars = person_ids
+    similars = list(person_ids)
     index = 0
     
     while index < len(similars):
@@ -157,11 +157,12 @@ def get_similar_candidates_rec(user_id, person_ids):
                 
         index = index + 1
 
-    return similars
+    return set(similars)
 
 if __name__ == "__main__":
-    print(get_similee_candidates_rec('wang', ['d6ca4db4-f1a3-49c1-8609-b111ecc4df57']))
-    print(get_similar_candidates_rec('wang', ['082aca8c-c441-4cc3-a696-9d13ea391f6d']))
+#     print(get_similee_candidates_rec('wang', ['94c3aa36-90ba-47a0-af6c-c67fc2863be9']))
+#     print(get_similar_candidates_rec('wang', ['94c3aa36-90ba-47a0-af6c-c67fc2863be9']))
+    print(get_similar_persons('wang', [u'郭德纲']))
     
     
     
