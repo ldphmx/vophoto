@@ -16,38 +16,73 @@ def get_user_by_id(userId):
     rec = coll.find_one({'user_id': userId})
     return rec;
 
+# ###added by peigang###
+# def update_user_token(userId,newToken):
+#     db = conn.VoiceImageDB
+#     coll = db.user_profile
+#     doc = coll.find_one()
+#     doc['token']=newToken
+#     coll.save(doc)
+
+# def register_user(user):
+#     db = conn.VoiceImageDB
+#     coll = db.user_profile
+#     coll.insert_one(user)
+    
+# def get_server_users():
+#     db = conn.VoiceImageDB
+#     coll = db.server_usage
+#     doc = coll.find_one()
+#     if doc is None:
+#         servers = Config.config['servers']
+#         doc = {}
+#         for server in servers:
+#             doc[server['name']] = 0
+#         coll.insert_one(doc)
+        
+#     return doc
+
+# def increase_server_usage(server_name, count):
+#     db = conn.VoiceImageDB
+#     coll = db.server_usage
+#     doc = coll.find_one()
+#     if doc is not None:
+#         doc[server_name] = doc[server_name] + count
+#         coll.save(doc)
 ###added by peigang###
-def update_user_token(userId,newToken):
+def update_user_token(userId, newToken):
     db = conn.VoiceImageDB
     coll = db.user_profile
-    doc = coll.find_one()
-    doc['token']=newToken
-    coll.save(doc)
+    doc = coll.find_one({'user_id': userId})
+    if doc is not None:
+        doc['token'] = newToken
+        coll.save(doc)
 
 def register_user(user):
     db = conn.VoiceImageDB
     coll = db.user_profile
     coll.insert_one(user)
     
-def get_server_users():
+def allocate_user_server():
     db = conn.VoiceImageDB
     coll = db.server_usage
-    doc = coll.find_one()
-    if doc is None:
+    docs = coll.find()
+    if docs is None:
         servers = Config.config['servers']
-        doc = {}
         for server in servers:
-            doc[server['name']] = 0
-        coll.insert_one(doc)
-        
-    return doc
+            server['count'] = 0
+            coll.insert_one(server)
+        return servers[0]['name']
+    for doc in docs:
+        if doc['count'] < doc['capacity']:
+            return doc['name']
 
 def increase_server_usage(server_name, count):
     db = conn.VoiceImageDB
     coll = db.server_usage
-    doc = coll.find_one()
+    doc = coll.find_one({'name': server_name})
     if doc is not None:
-        doc[server_name] = doc[server_name] + count
+        doc['count'] += count
         coll.save(doc)
         
 def save_image(image):
