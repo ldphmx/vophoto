@@ -168,25 +168,106 @@ def do_parse_lastday(regex, date_str):
     start = now - delta
     return (start.year, start.month, start.day, start.year, start.month, start.day)
 
-year_regex = [(ur'(\d+)年', do_parse_raw_year),
-              (ur'去年', do_parse_last_year),
-              (ur'今年', do_parse_this_year),
-              (ur'前年', do_parse_last2_year),]
+def do_parse_newyears_day(regex,date_str):
+    Logger.debug('do parse: ' + regex + " - " + date_str) 
+    return (1, 1)
 
-month_regex = [(ur'(\d+)月[份]{0,1}', do_parse_raw_month),
-               (ur'春[天季]', do_parse_spring),
-               (ur'夏[天季]', do_parse_summer),
-               (ur'秋[天季]', do_parse_autumn),
-               (ur'冬[天季]', do_parse_winter)]
+def do_Valentine_Day(regex,date_str):
+    Logger.debug('do parse: ' + regex + " - " + date_str)
+    return (2,14)
 
-day_regex = [(ur'(\d+)日', do_parse_raw_day)]
+def do_wenmen_day(regex,date_str):
+    Logger.debug('do parse: ' + regex + " - " + date_str)
+    return (3,8)
 
-relative_regex = [(ur'[上|(最近)]([一二三四五六七八九两1-9]{0,1})[个]{0,1}月', do_parse_last_month),
-                  (ur'今天', do_parse_today),
-                  (ur'昨天', do_parse_lastday),
-                  (ur'最近((\d+)天){0,1}', do_parse_n_recent),
-                  (ur'上周([一二三四五六日1-6]{0,1})', do_parse_last_weekday),
-                  (ur'[上|(最近)]([一二三四五六七八九两1-9])周', do_parse_last_n_week)]
+def do_plantree_day(regex,date_str):
+    Logger.debug('do parse: ' + regex + " - " + date_str)
+    return (3,12)
+
+def do_fools_day(regex,date_str):
+    Logger.debug('do parse: ' + regex + " - " + date_str)
+    return (4,1)
+
+def do_qingming_day(regex,date_str):
+    Logger.debug('do parse: ' + regex + " - " + date_str)
+    return (4,5)
+
+def do_labors_day(regex,date_str):
+    Logger.debug('do parse: ' + regex + " - " + date_str)
+    return (5,1)
+
+def do_children_day(regex,date_str):
+    Logger.debug('do parse: ' + regex + " - " + date_str)
+    return (6,2)
+
+def do_71_day(regex,date_str):
+    Logger.debug('do parse: ' + regex + " - " + date_str)
+    return (8,1)
+
+def do_81_day(regex,date_str):
+    Logger.debug('do parse: ' + regex + " - " + date_str)
+    return (8,1)
+
+def do_nation_day(regex,date_str):
+    Logger.debug('do parse: ' + regex + " - " + date_str)
+    return (10,1)
+
+def do_Halloween_day(regex,date_str):
+    Logger.debug('do parse: ' + regex + " - " + date_str)
+    return (10,31)
+
+def do_singal_day(regex,date_str):
+    Logger.debug('do parse: ' + regex + " - " + date_str)
+    return (11,11)
+
+def do_Thanksgiving_day(regex,date_str):
+    Logger.debug('do parse: ' + regex + " - " + date_str)
+    return (11,25)
+
+def do_ChristmasEve_day(regex,date_str):
+    Logger.debug('do parse: ' + regex + " - " + date_str)
+    return (12,24)
+
+def do_Christmas_day(regex,date_str):
+    Logger.debug('do parse: ' + regex + " - " + date_str)
+    return (12,25)
+
+year_regex = [(u'(\d+)年', do_parse_raw_year),
+              (u'去年', do_parse_last_year),
+              (u'今年', do_parse_this_year),
+              (u'前年', do_parse_last2_year),]
+
+month_regex = [(u'(\d+)月[份]{0,1}', do_parse_raw_month),
+               (u'春[天季]', do_parse_spring),
+               (u'夏[天季]', do_parse_summer),
+               (u'秋[天季]', do_parse_autumn),
+               (u'冬[天季]', do_parse_winter)]
+
+day_regex = [(u'(\d+)日', do_parse_raw_day)]
+
+relative_regex = [(u'[上|(最近)]([一二三四五六七八九两1-9]{0,1})[个]{0,1}月', do_parse_last_month),
+                  (u'今天', do_parse_today),
+                  (u'昨天', do_parse_lastday),
+                  (u'最近((\d+)天){0,1}', do_parse_n_recent),
+                  (u'上周([一二三四五六日1-6]{0,1})', do_parse_last_weekday),
+                  (u'[上|(最近)]([一二三四五六七八九两1-9])周', do_parse_last_n_week)]
+
+festival_regex = [(u'((元旦节)|(新年))', do_parse_newyears_day),
+                 (u'(情人节)',do_Valentine_Day),
+                 (u'((三八妇女节)|(妇女节))',do_wenmen_day),
+                 (u'(植树节)',do_plantree_day),
+                 (u'(愚人节)',do_fools_day),
+                 (u'(清明节)',do_qingming_day),
+                 (u'((劳动节)|(五一))',do_labors_day),
+                 (u'(儿童节)',do_children_day),
+                 (u'(建党节)|(建党日)|(七一)',do_71_day),
+                 (u'(建军节)',do_81_day),
+                 (u'((国庆)|(十一)|(国庆节))',do_nation_day),
+                 (u'(万圣节)',do_Halloween_day),
+                 (u'((光棍节)|(双十一))',do_singal_day),
+                 (u'(感恩节)',do_Thanksgiving_day),
+                 (u'(平安夜)',do_ChristmasEve_day),
+                 (u'(圣诞节)',do_Christmas_day)]
 
 def convert_chinese_num(num):
     if num == '1'  or num == u'一':
@@ -216,9 +297,13 @@ def parse_nl_date(date_str):
     year_set = False
     month_set = False
     day_set = False
+    festival_set = False
             
     for st in date_str:
+        #print('paring string is' + st)
         res = parse_relative(st)
+        #print('after parsing res is:')
+        #print(res)
         if res:
             (start_year, start_month, start_day, end_year, end_month, end_day) = res
         else:
@@ -226,6 +311,15 @@ def parse_nl_date(date_str):
             if res:
                 (start_year, end_year) = res
                 year_set = True
+            res = parse_festival(st)
+            if res:
+                (start_month,start_day) = res
+                (end_month,end_day)     = res
+                month_set = True
+                day_set = True
+                festival_set =True
+            if year_set and  month_set and day_set and festival_set:
+                break    
             res = parse_month(st)
             if res:
                 (start_month, end_month) = res
@@ -233,8 +327,7 @@ def parse_nl_date(date_str):
             res = parse_day(st)
             if res:
                 (start_day, end_day) = res
-                day_set = True
-                    
+                day_set = True      
             if not year_set and not month_set and not day_set:
                 break
             
@@ -279,6 +372,9 @@ def parse_day(date_str):
 def parse_relative(date_str):
     return parse_date_item(date_str, relative_regex)
 
+def parse_festival(date_str):
+    return parse_date_item(date_str,festival_regex)
+
 if __name__ == "__main__":
     # relative time
 #     print parse_nl_date([u'上个月'])
@@ -301,8 +397,8 @@ if __name__ == "__main__":
 #     print parse_nl_date([u'秋天'])
 #     print parse_nl_date([u'冬天'])
     
-    Logger.debug(parse_nl_date([u'2104年',u'3月']))
-    Logger.debug(parse_nl_date([u'2104年',u'夏天']))
+    Logger.debug(parse_nl_date([u'去年',u'3月',u'21日']))
+    Logger.debug(parse_nl_date([u'2013年',u'圣诞节']))
     Logger.debug(parse_nl_date([u'去年',u'冬天']))
     
     
@@ -310,6 +406,5 @@ if __name__ == "__main__":
 #     print parse_nl_date([u'15日'])
 #     print parse_nl_date([u'2014年',u'3月份', u'15日'])
 #     print parse_nl_date([u'2014年',u'3月份'])
-    
-    
-    
+
+
