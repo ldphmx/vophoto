@@ -166,13 +166,13 @@ Search in db for img with input tags
 @return: sorted image dictionary by tags, ordered by time
 '''
 ##added by peigang
-def get_images_by_location_from_photos(latitude, longitude,certain_photo,distance=1):
+def get_images_by_location_from_photos(latitude, longitude,certain_photo):
     image_unsort = []
     user_img = certain_photo
     for img in user_img:
         abs_lat = abs(img['lat'] - latitude)
         abs_lon = abs(img['lon'] - longitude)
-        if abs_lat < distance & abs_lon < distance:
+        if abs_lat < 1 & abs_lon < 1:
             temp = ((abs_lat + abs_lon), img)
             image_unsort.append(temp)
     image_sort = sorted(image_unsort, key=lambda img: img[0])
@@ -189,6 +189,16 @@ def get_images_by_tag(user_id, input_tags):
             image_unsort.append(img)
     image_sort = sorted(image_unsort, key=lambda img: img[6], reversed=True)   #time object at 6 index in image dictionary
     return image_sort
+
+##added by peigang##
+def get_image_depend_timerange(raw_image,time_range):
+    image_unsort = []
+    user_img = raw_image
+    for img in user_img:
+        for item in time_range:
+            if img['time'] < item[1] and img['time'] > item[0]:
+                image_unsort.append(img)
+    return image_unsort 
 
 if __name__ == "__main__":
     get_closest_points('wang', [0,0])
