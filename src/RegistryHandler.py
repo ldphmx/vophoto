@@ -33,9 +33,9 @@ class RegistryHandler(tornado.web.RequestHandler):
             MongoHelper.increase_server_usage(server, 1)
             result['status'] = True
             user["_id"] = '';
-            result['user'] = user
-            result['token'] = Utils.generate_access_token(user_id)
-            
+            # result['user'] = user
+            result['token'] = user['token']     #added by peigang
+            result['server'] = user['server']    #added by peigang
             
         finally:
             self.write(json.dumps(result))
