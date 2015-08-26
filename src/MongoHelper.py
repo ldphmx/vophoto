@@ -94,6 +94,14 @@ def save_person(person):
     coll = db.user_facename
     coll.save(person)
 
+###added by peigang####0826
+def extend_tags_in_existimage(user_id,image_name,tags):
+    db = conn.VoiceImageDB
+    coll = db.voice_images
+    doc = coll.find_one({'user_id': user_id,'image_name':image_name})
+    doc['tags'].extend(tags)
+    coll.save(doc)
+
 ###########added by yisha####################
 # search in db for img of input user_id
 def get_images_by_user(user_id):
