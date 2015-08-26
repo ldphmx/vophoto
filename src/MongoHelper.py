@@ -30,6 +30,27 @@ def register_user(user):
     coll = db.user_profile
     coll.insert_one(user)
     
+# def get_server_users():
+#     db = conn.VoiceImageDB
+#     coll = db.server_usage
+#     doc = coll.find_one()
+#     if doc is None:
+#         servers = Config.config['servers']
+#         doc = {}
+#         for server in servers:
+#             doc[server['name']] = 0
+#         coll.insert_one(doc)
+        
+#     return doc
+
+# def increase_server_usage(server_name, count):
+#     db = conn.VoiceImageDB
+#     coll = db.server_usage
+#     doc = coll.find_one()
+#     if doc is not None:
+#         doc[server_name] = doc[server_name] + count
+#         coll.save(doc)
+
 def allocate_user_server():
     db = conn.VoiceImageDB
     coll = db.server_usage
