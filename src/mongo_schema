@@ -32,3 +32,4 @@ person_list:
 server_usage：
     (IU)name:public DNS name，唯一，索引
     count:当前这台服务器上有多少用户
+    capacity: 这台服务器对应容量
