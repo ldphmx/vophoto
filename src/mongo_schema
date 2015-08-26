@@ -11,6 +11,7 @@ user_profile:
 voice_images：
     (IU)user_id：用户的唯一Id
     desc：分词好的用户的语音输入“2014年_nt 3月_nt 的_u 照片_n”
+    token：每次注册和登录时生成的token      #add
     image_name:图片的名称， 每张图片唯一的
     tags:数组，里面存放了所有的图片的tag信息
         "tags" : [
