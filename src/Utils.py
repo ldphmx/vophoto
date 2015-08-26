@@ -18,28 +18,6 @@ def get_user_path(userId):
     if not os.path.exists(path):
         os.makedirs(path)
     return path
-
-def allocate_user_server(userId):
-    servers = Config.config['servers']
-    if len(servers) == 0:
-        return None
-    
-    server_usage = MongoHelper.get_server_users()
-    for name in server_usage:
-        count = server_usage[name]
-        capacity = 0
-        for server in servers:
-            if server['name'] == name:
-                capacity = server['capacity']
-                break
-        
-        if count >= capacity:
-            continue
-        else:
-            return name
-    
-    return None
-    
     
 def generate_access_token(userId):
     md5ins = md5.new()
