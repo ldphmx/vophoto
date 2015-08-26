@@ -26,7 +26,7 @@ class RegistryHandler(tornado.web.RequestHandler):
                 return
             
             user = {'user_id': user_id, 'user_name': user_name, 'password': password, 'lang': lang}
-            server = Utils.allocate_user_server(user_id)
+            server = MongoHelper.allocate_user_server()
             user['server'] = server
             user['token'] = Utils.generate_access_token(user_id)   #added by peigang
             MongoHelper.register_user(user)
