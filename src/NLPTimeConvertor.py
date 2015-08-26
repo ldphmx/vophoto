@@ -374,6 +374,22 @@ def parse_relative(date_str):
 
 def parse_festival(date_str):
     return parse_date_item(date_str,festival_regex)
+    
+def time_api(str):
+    final = []
+    search_string = []
+    sort_set = False
+    words = str.split(" ")
+    print(words)
+    for word in words:
+        if "_nt" in word:
+             w = re.search(u'(\w+)_nt',word).group(1)
+             final.append(w)
+             search_string.append(w)
+        if "_nd" in word:
+             final.append(word)
+             sort_set = True
+    return parse_nl_date(search_string)
 
 if __name__ == "__main__":
     # relative time
@@ -397,9 +413,7 @@ if __name__ == "__main__":
 #     print parse_nl_date([u'秋天'])
 #     print parse_nl_date([u'冬天'])
     
-    Logger.debug(parse_nl_date([u'去年',u'3月',u'21日']))
-    Logger.debug(parse_nl_date([u'2013年',u'圣诞节']))
-    Logger.debug(parse_nl_date([u'去年',u'冬天']))
+     Logger.debug(time_api( "我_r 要_v 找_v 去年_nt 圣诞节_nt 之前_nd 的_u 照片_n"))
     
     
 #     print parse_nl_date([u'3月'])
