@@ -4,7 +4,7 @@ config = {
     'access_token': 'secret',
     'mongo_url':'mongodb://localhost:27017/',
     'photo_root': 'E:/data/photos/',
-    'servers': [{'name' : 'localhost', 'capacity': 100,'count': }],      #updated
+    'servers': [{'name' : 'localhost', 'capacity': 100,'count': ''}],      #updated
     'image_process_batch': 10,
     'meaningful_pos':['ns','n''ns','n','ni','nl','nz'],    #updated
     'human_name_pos':['nh','r'],    #updated
