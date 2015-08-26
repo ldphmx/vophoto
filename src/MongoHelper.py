@@ -90,43 +90,7 @@ def get_similar_persons(user_id, persons):
         person_ids |= get_person_id(user_id, p)
     
     similars = get_similar_candidates_rec(user_id, person_ids)
-    similees = get_similee_candidates_rec(user_id, person_ids)
-    
-    return person_ids | similars | similees
-    
-def get_similee_candidates(user_id, person_id):
-    similees = set()
-    db = conn.VoiceImageDB
-    coll = db.person_list
-
-    doc = coll.find_one({'user_id': user_id, 'face_id': person_id})
-    if not doc:
-        return similees
-    
-    candidates = doc['candidates']
-    if not candidates:
-        return similees
-    
-    candi = [i['faceId'] for i in candidates]
-    for c in candi:
-        similees.add(c)
-        
-    return similees
-    
-def get_similee_candidates_rec(user_id, person_ids):
-    similees = list(person_ids)
-    index = 0
-    
-    while index < len(similees):
-        person_id = similees[index]
-        simi = get_similee_candidates(user_id, person_id)
-        for si in simi:
-            if not si in similees:
-                similees.append(si)
-                
-        index = index + 1
-        
-    return set(similees)
+    return person_ids | similars
     
 def get_similar_candidates(user_id, person_id):
     similars = set()
