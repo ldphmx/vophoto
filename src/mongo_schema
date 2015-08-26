@@ -18,7 +18,7 @@ voice_images：
                 "tiananmen", （转化成拼音的tag）
         ],
     (I)processed: true/false，表示这张图片是否被后台处理过
-    (I)time:yyyy-MM-dd HH:mm:ss格式存放
+    (I)time:datetime object格式存放
     location:{:119.123344, y:38.54192983}经纬度信息
     
 person_list:
