@@ -76,6 +76,7 @@ def allocate_user_server():
     for doc in docs:
         if doc['count'] < doc['capacity']:
             return doc['name']
+    return None
 
 def increase_server_usage(server_name, count):
     db = conn.VoiceImageDB
