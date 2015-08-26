@@ -16,30 +16,62 @@ def get_user_by_id(userId):
     rec = coll.find_one({'user_id': userId})
     return rec;
 
+
+def update_user_token(userId, newToken):
+    db = conn.VoiceImageDB
+    coll = db.user_profile
+    doc = coll.find_one({'user_id': userId})
+    if doc is not None:
+        doc['token'] = newToken
+        coll.save(doc)
+
 def register_user(user):
     db = conn.VoiceImageDB
     coll = db.user_profile
     coll.insert_one(user)
     
-def get_server_users():
+# def get_server_users():
+#     db = conn.VoiceImageDB
+#     coll = db.server_usage
+#     doc = coll.find_one()
+#     if doc is None:
+#         servers = Config.config['servers']
+#         doc = {}
+#         for server in servers:
+#             doc[server['name']] = 0
+#         coll.insert_one(doc)
+        
+#     return doc
+
+# def increase_server_usage(server_name, count):
+#     db = conn.VoiceImageDB
+#     coll = db.server_usage
+#     doc = coll.find_one()
+#     if doc is not None:
+#         doc[server_name] = doc[server_name] + count
+#         coll.save(doc)
+
+def allocate_user_server():
     db = conn.VoiceImageDB
     coll = db.server_usage
-    doc = coll.find_one()
-    if doc is None:
+    docs = coll.find()
+    if docs is None:
         servers = Config.config['servers']
-        doc = {}
         for server in servers:
-            doc[server['name']] = 0
-        coll.insert_one(doc)
-        
-    return doc
+            server['count'] = 0
+            coll.insert_one(server)
+        return servers[0]['name']
+    for doc in docs:
+        if doc['count'] < doc['capacity']:
+            return doc['name']
+    return None
 
 def increase_server_usage(server_name, count):
     db = conn.VoiceImageDB
     coll = db.server_usage
-    doc = coll.find_one()
+    doc = coll.find_one({'name': server_name})
     if doc is not None:
-        doc[server_name] = doc[server_name] + count
+        doc['count'] += count
         coll.save(doc)
         
 def save_image(image):
@@ -61,6 +93,14 @@ def save_person(person):
     db = conn.VoiceImageDB
     coll = db.user_facename
     coll.save(person)
+
+###added by peigang####0826
+def extend_tags_in_existimage(user_id,image_name,tags):
+    db = conn.VoiceImageDB
+    coll = db.voice_images
+    doc = coll.find_one({'user_id': user_id,'image_name':image_name})
+    doc['tags'].extend(tags)
+    coll.save(doc)
 
 ###########added by yisha####################
 # search in db for img of input user_id
@@ -124,15 +164,22 @@ def get_similar_candidates_rec(user_id, person_ids):
     return set(similars)
     
 ###########added by yisha####################
-# check whether img exist
 def check_img_exist(user_id, input_img):
-    db = conn.VoiceImageDB
-    coll = db.voice_images
-    images = coll.find({'user_id':user_id})
+    images = get_images_by_user(user_id)
     for image in images:
         if input_img is image['image_name']:
             return True
     return False
+
+'''
+Get earliest date for NLP time converter
+@return: datetime object
+'''
+def get_earliest_date(user_id):
+    db = conn.VoiceImageDB
+    coll = db.voice_images
+    img = coll.find({'user_id':user_id}).sort({'time': 1})  # sort img by ascending date
+    return img[0]['time']
 
 if __name__ == "__main__":
 #     print(get_similee_candidates_rec('wang', ['94c3aa36-90ba-47a0-af6c-c67fc2863be9']))

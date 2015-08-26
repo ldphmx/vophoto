@@ -23,7 +23,8 @@ class LoginHandler(tornado.web.RequestHandler):
             ###    result['user'] = user   ###
                 result['token'] = Utils.generate_access_token(user_id)
                 ###added by peigang###
-                user['token'] = result['token']
+                user_token = result['token']
+                MongoHelper.update_user_token(user_id,user_token)     #update
                 ###added by peigang###
         finally:
             self.write(json.dumps(result))

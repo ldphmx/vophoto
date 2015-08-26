@@ -11,6 +11,7 @@ user_profile:
 voice_images：
     (IU)user_id：用户的唯一Id
     desc：分词好的用户的语音输入“2014年_nt 3月_nt 的_u 照片_n”
+    token：每次注册和登录时生成的token      #add
     image_name:图片的名称， 每张图片唯一的
     tags:数组，里面存放了所有的图片的tag信息
         "tags" : [
@@ -18,8 +19,8 @@ voice_images：
                 "tiananmen", （转化成拼音的tag）
         ],
     (I)processed: true/false，表示这张图片是否被后台处理过
-    (I)time:yyyy-MM-dd HH:mm:ss格式存放
-    location:{:119.123344, y:38.54192983}经纬度信息
+    (I)time:datetime object格式存放
+    location:{longitude:119.123344, latitude:38.54192983}经纬度信息
     
 person_list:
     (IU)user_id:用户的唯一id
@@ -32,3 +33,4 @@ person_list:
 server_usage：
     (IU)name:public DNS name，唯一，索引
     count:当前这台服务器上有多少用户
+    capacity: 这台服务器对应容量
