@@ -192,15 +192,22 @@ def get_similar_candidates_rec(user_id, person_ids):
     return set(similars)
     
 ###########added by yisha####################
-# check whether img exist
 def check_img_exist(user_id, input_img):
-    db = conn.VoiceImageDB
-    coll = db.voice_images
-    images = coll.find({'user_id':user_id})
+    images = get_images_by_user(user_id)
     for image in images:
         if input_img is image['image_name']:
             return True
     return False
+
+'''
+Get earliest date for NLP time converter
+@return: datetime object
+'''
+def get_earliest_date(user_id):
+    db = conn.VoiceImageDB
+    coll = db.voice_images
+    img = coll.find({'user_id':user_id}).sort({'time': 1})  # sort img by ascending date
+    return img[0]['time']
 
 if __name__ == "__main__":
 #     print(get_similee_candidates_rec('wang', ['94c3aa36-90ba-47a0-af6c-c67fc2863be9']))
