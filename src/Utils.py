@@ -63,8 +63,8 @@ def get_meaningful_keywords(key_words):
 ##added by peigang
 def get_location_from_rawlocation(key_location):
     location = {}
-    location['longitude'] = key_location[0]
-    location['latitude'] = key_location[1]
+    location['longitude'] = float(key_location[0])
+    location['latitude'] = float(key_location[1])
     return location
         
 def get_tag_from_rawlocation(key_location):
