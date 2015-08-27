@@ -16,24 +16,22 @@ class UploadHandler(BaseAuthenticateHandler.BaseAuthenticateHandler):
             desc = self.get_argument('desc', '')
             rawTags = self.get_argument('tag', '')
             rowTime = self.get_argument('time', '')
+            function = self.get_argument('func','')  #
             token = self.get_argument('token','')           #add
-            image_name = self.get_argument('image','')    #add
+            image_name = self.get_argument('image_name','')    #add
             user = MongoHelper.get_user_by_id(userId)
             if token != user['token']:      #add
                 return
             ###for images that has uploaded:if this image was existed,then the customer just want to extend image-tags###
-            if isinstance(image_name,str):
-                key_words = rawTags.split(' ')
-                tags = Utils.get_meaningful_keywords(key_words)
-                MongoHelper.extend_tags_in_existimage(userId,image_name,tags)
+            if function == 'UPDATE':
+                update_image_tag(rawTags,userId,image_name)
                 result['status'] = True
             
             else:    ###for images that has not uploaded###    
+                
                 path = Utils.get_user_path(userId)
             #if self.request.files:
-             
                 files = self.request.files['image']
-            
             # process image file
                 if files is None or len(files) == 0:
                     self.write(json.dumps(result))
@@ -42,18 +40,13 @@ class UploadHandler(BaseAuthenticateHandler.BaseAuthenticateHandler):
                 fname = fileinfo['filename']    
                 fh = open(path + "/" + fname, 'wb')
                 fh.write(fileinfo['body'])
-            
             # filter out meaningful tags
                 key_words = rawTags.split(' ')
                 tags = []
                 if key_words is not None and len(key_words) != 0:
                     tags = Utils.get_meaningful_keywords(key_words)
-            
-            
             # split date and time
                 time = datetime.strptime(rowTime, '%Y-%m-%d %X %z')
-            
-            
                 key_location = rawLocation.split(',')               #add         
                 raw_location_tag = []
                 if key_location is not None and len(key_location) != 0:
@@ -66,5 +59,8 @@ class UploadHandler(BaseAuthenticateHandler.BaseAuthenticateHandler):
                     result['status'] = True
         finally:
             self.write(json.dumps(result))
-        
-        
+            
+def update_image_tag(rawTags,userId,image_name):
+                key_words = rawTags.split(' ')
+                tags = Utils.get_meaningful_keywords(key_words)
+                MongoHelper.extend_tags_in_existimage(userId,image_name,tags)
