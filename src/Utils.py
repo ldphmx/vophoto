@@ -179,15 +179,31 @@ def get_images_by_location_from_photos(latitude, longitude,certain_photo):
     return image_sort[1]                               
 ##added by peigang
 
+# def get_images_by_tag(user_id, input_tags):
+#     image_unsort = []
+#     tags = set(input_tags)
+#     user_img = MongoHelper.get_images_by_user(user_id)
+#     for img in user_img:
+#         user_tags = set(user_img['tags'])
+#         if tags.issubset(user_tags):
+#             image_unsort.append(img)
+#     image_sort = sorted(image_unsort, key=lambda img: img[6], reversed=True)   #time object at 6 index in image dictionary
+#     return image_sort
+###added 0827    
 def get_images_by_tag(user_id, input_tags):
     image_unsort = []
-    tags = set(input_tags)
+    search_tags = list(set(input_tags))
     user_img = MongoHelper.get_images_by_user(user_id)
     for img in user_img:
-        user_tags = set(user_img['tags'])
-        if tags.issubset(user_tags):
-            image_unsort.append(img)
-    image_sort = sorted(image_unsort, key=lambda img: img[6], reversed=True)   #time object at 6 index in image dictionary
+        count = 0
+        pattern_tag = list(set(img['tags']))
+        tag_length =len(pattern_tag)
+        for tag in search_tags:
+            for i in range(tag_length):
+                if re.search(pattern_tag[i], tag, re.M|re.I):
+                    count += 1
+        image_unsort.append((img,count))   
+    image_sort = sorted(image_unsort,key = lambda x:x[1],reverse= True)         
     return image_sort
 
 ##added by peigang##
