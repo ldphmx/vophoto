@@ -36,10 +36,7 @@ class SearchHandler(BaseAuthenticateHandler.BaseAuthenticateHandler):
             raw_image  = Utils.get_images_by_tag(user_id, meaningful)   ##需修改这个函数：search时容错、关联度
             
             #get time_range#
-            time_range = []
-            date_str_other = NLPTimeConvertor.parse_raw_str_attribute_first(rawTag)
-            date_str = NLPTimeConvertor.parse_raw_str_attribute_second(date_str_other)
-            time_range = NLPTimeConvertor.parse_nl_date(date_str); 
+            time_range = NLPTimeConvertor.time_api(rawTag)
 
             
             if key_location is None and time_range is None:    
