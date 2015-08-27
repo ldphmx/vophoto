@@ -16,7 +16,6 @@ class UploadHandler(BaseAuthenticateHandler.BaseAuthenticateHandler):
             desc = self.get_argument('desc', '')
             rawTags = self.get_argument('tag', '')
             rowTime = self.get_argument('time', '')
-            clientLocation = self.get_argument('path','')  #add
             token = self.get_argument('token','')           #add
             image_name = self.get_argument('image','')    #add
             user = MongoHelper.get_user_by_id(userId)
@@ -62,7 +61,7 @@ class UploadHandler(BaseAuthenticateHandler.BaseAuthenticateHandler):
                     raw_location_tag = Utils.get_tag_from_rawlocation(key_location)
                     tags.extend(raw_location_tag)
             
-                    image = {'user_id': userId, 'image_name': fname, 'client_loc': clientLocation,'location':location, 'desc': desc, 'tags': tags, 'time':time, 'processed': False}
+                    image = {'user_id': userId, 'image_name': fname, 'location':location, 'desc': desc, 'tags': tags, 'time':time, 'processed': False}
                     MongoHelper.save_image(image)
                     result['status'] = True
         finally:
