@@ -421,8 +421,5 @@ if __name__ == "__main__":
 #     print parse_nl_date([u'2014年',u'3月份', u'15日'])
 #     print parse_nl_date([u'2014年',u'3月份'])
 
-def parse_raw_str_attribute_first(str_attribute):
-    pass
-
-def parse_raw_str_attribute_second(date_str_other):
+def time_api(string):
     pass
