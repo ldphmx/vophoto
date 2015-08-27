@@ -7,6 +7,7 @@ user_profile:
     (IU)user_name:用户名
     password：用户的密码，md5格式存放
     server:用户照片存放的服务器public DNS name
+    token：每次注册和登录时生成的token     #add
     
 voice_images：
     (IU)user_id：用户的唯一Id
