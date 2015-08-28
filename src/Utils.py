@@ -143,6 +143,9 @@ def get_human_names(raw):
             keys.append(pair[0])
         
     return keys
+    
+def get_faceid_from_rawTags(raw):
+    pass
 
 ###########added by yisha####################
 '''
