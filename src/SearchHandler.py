@@ -28,7 +28,7 @@ class SearchHandler(BaseAuthenticateHandler.BaseAuthenticateHandler):
             key_location = rawLocation.split(',')
             latitude = float(key_location[0])
             longitude = float(key_location[1])  
-            image_to_client = {}
+            image_to_client = []
             key_words = rawTag.split(' ')
             if key_words is None or len(key_words) == 0:
                 return
@@ -47,7 +47,8 @@ class SearchHandler(BaseAuthenticateHandler.BaseAuthenticateHandler):
                 Traw_image = Utils.get_image_depend_timerange(raw_image,time_range)
                 image = Utils.get_images_by_location_from_photos(latitude, longitude,Traw_image)   
             for item in image:
-                image_to_client[item['img_name']] = item['client_loc']
+                image_info = item[0]
+                image_to_client.append(image_info['img_name'])
             result['status'] = True
             result['image'] = image_to_client
             
