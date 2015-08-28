@@ -25,6 +25,9 @@ class UploadHandler(BaseAuthenticateHandler.BaseAuthenticateHandler):
             ###for images that has uploaded:if this image was existed,then the customer just want to extend image-tags###
             if function == 'UPDATE':
                 update_image_tag(rawTags,userId,image_name)
+                face_name = Utils.get_human_names(rawTags)
+                if face_name is not None:
+                    Utils.update_facename_in_person_list(face_name)
                 result['status'] = True
             
             else:    ###for images that has not uploaded###    
