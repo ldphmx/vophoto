@@ -219,6 +219,10 @@ def get_image_depend_timerange(raw_image,time_range):
             if img['time'] < item[1] and img['time'] > item[0]:
                 image_unsort.append(img)
     return image_unsort 
+    
+def update_facename_in_person_list(face_name):
+    pass
+
 
 if __name__ == "__main__":
     get_closest_points('wang', [0,0])
