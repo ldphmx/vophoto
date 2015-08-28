@@ -9,6 +9,7 @@ import pypinyin
 from pymemcache.client.base import Client
 from scipy import spatial
 import numpy as np
+import re
 
 mc = Client((Config.config['memcached_host'], 11211))
 
