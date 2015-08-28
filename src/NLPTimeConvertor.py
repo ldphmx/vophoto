@@ -23,6 +23,10 @@ import Logger
 # 昨天_nt 的_u 照片_n
 # 上周六_nt 的_u 照片_n
 # 前年_nt 的_u 照片_n
+result = []
+final = []
+search_string = []
+
 
 def do_parse_raw_year(regex, date_str):
     Logger.debug('do parse: ' + regex + " - " + date_str)
@@ -289,8 +293,17 @@ def convert_chinese_num(num):
     elif num == '9'  or num == u'九':
         return 9
 
+def trans_date_to_string(year,month,day):
+    year_string = str(year)
+    month_string = str(month)
+    day_string = str(day)
+    
+    date_string = year_string + '-' + month_string + '-' + day_string + ' 00:00:00 +0800'
+    return date_string
+
 def parse_nl_date(date_str):   
-    now = datetime.date.today()
+    now = datetime.datetime.now()
+    
     (start_year, start_month, start_day) = (now.year, now.month, now.day)
     (end_year, end_month, end_day) = (now.year, now.month, now.day)
     
@@ -319,7 +332,7 @@ def parse_nl_date(date_str):
                 day_set = True
                 festival_set =True
             if year_set and  month_set and day_set and festival_set:
-                break    
+                break 
             res = parse_month(st)
             if res:
                 (start_month, end_month) = res
@@ -342,8 +355,17 @@ def parse_nl_date(date_str):
                     
             if not day_set:
                 (start_day, end_day) = (1,31)
-            
-    return datetime.date(start_year, start_month, start_day), datetime.date(end_year, end_month, end_day)
+              
+    start_date_string = trans_date_to_string(start_year, start_month, start_day)
+    end_date_string   = trans_date_to_string(end_year, end_month, end_day) 
+    
+    start_time = datetime.datetime.strptime(start_date_string,'%Y-%m-%d %X %z')
+    end_time   = datetime.datetime.strptime(start_date_string,'%Y-%m-%d %X %z')   
+          
+    result.append((start_time,end_time))
+      
+    
+    return result
 
 def parse_date_item(date_str, regex):
     parse_func = None
@@ -374,11 +396,10 @@ def parse_relative(date_str):
 
 def parse_festival(date_str):
     return parse_date_item(date_str,festival_regex)
-    
+
+
 def time_api(str):
-    final = []
-    search_string = []
-    sort_set = False
+    
     words = str.split(" ")
     print(words)
     for word in words:
@@ -387,10 +408,15 @@ def time_api(str):
              final.append(w)
              search_string.append(w)
         if "_nd" in word:
-             final.append(word)
+             w = re.search(u'(\w+)_nd',word).group(1)
+             final.append(w)
+            
              sort_set = True
-    return parse_nl_date(search_string)
-
+             break
+    if(search_string == []):
+        return None
+    else:
+         return parse_nl_date(search_string)
 if __name__ == "__main__":
     # relative time
 #     print parse_nl_date([u'上个月'])
@@ -413,7 +439,7 @@ if __name__ == "__main__":
 #     print parse_nl_date([u'秋天'])
 #     print parse_nl_date([u'冬天'])
     
-     Logger.debug(time_api( "我_r 要_v 找_v 去年_nt 圣诞节_nt 之前_nd 的_u 照片_n"))
+    Logger.debug(time_api( "我_r 要_v 找_v 去年_nt 圣诞节_nt 在_p 微软_ni 附近_nd 拍_v 的_u 照片_n"))
     
     
 #     print parse_nl_date([u'3月'])
@@ -421,5 +447,4 @@ if __name__ == "__main__":
 #     print parse_nl_date([u'2014年',u'3月份', u'15日'])
 #     print parse_nl_date([u'2014年',u'3月份'])
 
-def time_api(string):
-    pass
+
