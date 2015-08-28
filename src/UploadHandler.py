@@ -30,7 +30,7 @@ class UploadHandler(BaseAuthenticateHandler.BaseAuthenticateHandler):
                     Utils.update_facename_in_person_list(face_name)
                 result['status'] = True
             
-            else:    ###for images that has not uploaded###    
+            else:elif function == 'UPLOAD':    ###for images that has not uploaded###    
                 
                 path = Utils.get_user_path(userId)
             #if self.request.files:
@@ -57,9 +57,9 @@ class UploadHandler(BaseAuthenticateHandler.BaseAuthenticateHandler):
                     raw_location_tag = Utils.get_tag_from_rawlocation(key_location)
                     tags.extend(raw_location_tag)
             
-                    image = {'user_id': userId, 'image_name': fname, 'location':location, 'desc': desc, 'tags': tags, 'time':time, 'processed': False}
-                    MongoHelper.save_image(image)
-                    result['status'] = True
+                image = {'user_id': userId, 'image_name': fname, 'location':location, 'desc': desc, 'tags': tags, 'time':time, 'processed': False}
+                MongoHelper.save_image(image)
+                result['status'] = True
         finally:
             self.write(json.dumps(result))
             
