@@ -314,6 +314,38 @@ def sort_image_by_time(img_list, time_ranges):
             elif time > time_range[0]:
                 sort_img.append(img_list[1][img_list[0].index(time)])
     return sort_img
+    
+def update_time_indexer(user_id, input_img_time):
+    indexer = mc.get(user_id + '_time')
+#     filename = get_user_path(user_id) + "/" + "time_indexer.dat"
+    filename = 'time_indexer.dat'
+     
+    if not indexer:
+        indexer = [[input_img_time['time']], [input_img_time['image_name']]]
+        mc.set(user_id, indexer)
+    else:    
+        with open(filename,'rb') as fp:
+            indexer = pickle.load(fp)
+        # img_list: [[t1, t2], [img1, img2]]
+    imgs = []
+    new_indexer = [[], []]
+    i = 0
+    while i < len(indexer[0]):
+        img = {'time': indexer[0][i], 'image_name': indexer[1][i]}
+        imgs.append(img)
+        i += 1
+    img = {'time': input_img_time['time'], 'image_name': input_img_time['image_name']}
+    imgs.append(img)
+    image_sort = sorted(imgs, key=lambda img: img['time'])
+    for img in image_sort:
+        new_indexer[0].append(img['time'])
+        new_indexer[1].append(img['image_name'])
+    mc.set(user_id, new_indexer)
+    
+    with open(filename, 'wb') as fp:
+        pickle.dump(new_indexer,fp)
+        
+    print(new_indexer)
 
 #0831 yisa
 
