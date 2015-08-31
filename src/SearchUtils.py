@@ -55,28 +55,27 @@ def sort_by_closest_point(indexer, longitude, latitude):
         sorted_images.append(indexer[1][res_index])
     return sorted_images
 
-def get_image_by_time(user_id, time):
-    filename = 'indexer.dat'
-    indexer = mc.get(user_id)
-    time_sorted_imgs = []
-    if not indexer:
-        if not os.path.exists(filename):
-            indexer = {}
-        else:
-            with open(filename,'rb') as fp:
-                indexer = pickle.load(fp)
-    
-    if indexer is None:
-        return
-    
-    for t in tags:
-        pt = pypinyin.slug(t)
-        photo_list = indexer.get(pt, [])
-        photo_list.append(image_name)
-        indexer[pt] = photo_list
-    
-    mc.set(user_id, indexer)
+def get_image_by_time(user_id, time_list):
+    filename = 'time_indexer.dat'    # modify later when md5str available
+    if not os.path.exists(filename):
+        time_indexer = {}
+    else:
+        with open(filename,'rb') as fp:
+            time_indexer = pickle.load(fp)
+    time_sorted_imgs = sort_image_by_time(time_indexer, time_list)
     return time_sorted_imgs
+
+def sort_image_by_time(img_list, time_ranges):
+    # time_list: [(st, et), (st, et)]
+    # img_list: [[t1, t2], [img1, img2]]
+    sort_img = []
+    for time_range in time_ranges:
+        for time in img_list[0]:
+            if time > time_range[1]:
+                break
+            elif time > time_range[0]:
+                sort_img.append(img_list[1][img_list[0].index(time)])
+    return sort_img
 
 if __name__ == '__main__':
     imageList = [[{'image_name': 'img02.jpg', 'location': {'longitude': 45.123456, 'latitude': 25.456789}},
