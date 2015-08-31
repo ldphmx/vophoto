@@ -1,14 +1,15 @@
 #Encoding=UTF8
 
-import Config
+from src import Config
 from hashlib import md5
 import os
-import MongoHelper
+from src import MongoHelper
 import pickle
 import pypinyin
 from pymemcache.client.base import Client
 from scipy import spatial
 import numpy as np
+import re
 
 mc = Client((Config.config['memcached_host'], 11211))
 
@@ -40,7 +41,6 @@ def get_meaningful_keywords(key_words):
     
     return keys
 
-##added by peigang
 def get_location_from_rawlocation(key_location):
     location = {}
     location['longitude'] = float(key_location[0])
@@ -50,7 +50,11 @@ def get_location_from_rawlocation(key_location):
 def get_tag_from_rawlocation(key_location):
     tags = key_location[2:]
     return tags
-##added by peigang
+
+def update_user_location_indexer(user_id):
+    filename = get_user_path(user_id) + "/" + "loc_indexer.dat"
+    with open(filename,'rb') as fp:
+        indexer = pickle.load(fp)
 
 def get_user_photo_location_indexer(user_id):
     indexer = mc.get(user_id + '_location')
@@ -143,7 +147,6 @@ def get_human_names(raw):
         
     return keys
 
-###########added by yisha####################
 '''
 Search in db for nearby img by location
 @return: sorted image dictionary by distance  
@@ -165,7 +168,6 @@ def get_images_by_location(user_id, latitude, longitude, distance=1):
 Search in db for img with input tags
 @return: sorted image dictionary by tags, ordered by time
 '''
-##added by peigang
 def get_images_by_location_from_photos(latitude, longitude,certain_photo):
     image_unsort = []
     user_img = certain_photo
@@ -177,19 +179,7 @@ def get_images_by_location_from_photos(latitude, longitude,certain_photo):
             image_unsort.append(temp)
     image_sort = sorted(image_unsort, key=lambda img: img[0])
     return image_sort[1]                               
-##added by peigang
 
-# def get_images_by_tag(user_id, input_tags):
-#     image_unsort = []
-#     tags = set(input_tags)
-#     user_img = MongoHelper.get_images_by_user(user_id)
-#     for img in user_img:
-#         user_tags = set(user_img['tags'])
-#         if tags.issubset(user_tags):
-#             image_unsort.append(img)
-#     image_sort = sorted(image_unsort, key=lambda img: img[6], reversed=True)   #time object at 6 index in image dictionary
-#     return image_sort
-###added 0827    
 def get_images_by_tag(user_id, input_tags):
     image_unsort = []
     search_tags = list(set(input_tags))

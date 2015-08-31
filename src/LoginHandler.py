@@ -1,9 +1,9 @@
 #Encoding=UTF8
 
 import tornado.web
-import MongoHelper
+from src import MongoHelper
 import json
-import Utils
+from src import Utils
 
 class LoginHandler(tornado.web.RequestHandler):
     def post(self):

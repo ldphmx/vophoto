@@ -1,7 +1,7 @@
 #Encoding=UTF8
 
 import pymongo
-import Config
+from src import Config
 
 conn = pymongo.MongoClient(Config.config['mongo_url'])
 
