@@ -47,7 +47,7 @@ class SearchHandler(BaseAuthenticateHandler.BaseAuthenticateHandler):
                 Tag_image = Utils.get_images_by_tag_from_Timage(user_id,meaningful,Timage)
                 image = Utils.sort_by_location(latitude,longitude,Tag_image)
             elif time_range is not None and key_location is None:
-                Timage = Utils.get_image_depend_timerange_from_index(time_range)
+                Timage = Utils.get_image_by_time(user_id, time_range)
                 image = Utils.get_images_by_tag_from_Timage(user_id,meaningful,Timage)
             elif time_range is None and key_location is not None:
                 Tag_image = Utils.get_images_by_tag(user_id, meaningful)
