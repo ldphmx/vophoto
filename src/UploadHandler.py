@@ -27,7 +27,7 @@ class UploadHandler(BaseAuthenticateHandler.BaseAuthenticateHandler):
                 update_image_tag(rawTags,userId,image_name)
                 face_name = Utils.get_human_names(rawTags)
                 if face_name is not None:
-                    Utils.update_facename_in_person_list(face_name)
+                    MongoHelper.update_facename_in_person_list(face_name)
                 result['status'] = True
             
             else:elif function == 'UPLOAD':    ###for images that has not uploaded###    
