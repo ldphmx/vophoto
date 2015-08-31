@@ -193,9 +193,23 @@ def get_images_by_location_from_photos(latitude, longitude,certain_photo):
 #             image_unsort.append(img)
 #     image_sort = sorted(image_unsort, key=lambda img: img[6], reversed=True)   #time object at 6 index in image dictionary
 #     return image_sort
-###added 0827    
+    
+
+
+##added by peigang##
+def get_image_depend_timerange(raw_image,time_range):
+    image_unsort = []
+    user_img = raw_image
+    for img in user_img:
+        for item in time_range:
+            if img['time'] < item[1] and img['time'] > item[0]:
+                image_unsort.append(img)
+    return image_unsort 
+    
+##0827##
 def get_images_by_tag(user_id, input_tags):
     image_unsort = []
+    image_final = []
     search_tags = list(set(input_tags))
     user_img = MongoHelper.get_images_by_user(user_id)
     for img in user_img:
@@ -208,21 +222,100 @@ def get_images_by_tag(user_id, input_tags):
                     count += 1
         image_unsort.append((img,count))   
     image_sort = sorted(image_unsort,key = lambda x:x[1],reverse= True)         
-    return image_sort
+    n = 0
+    for i in range(len(image_sort)):
+        j = i-1
+        if i == 0 or image_sort[i][1] != image_sort[j][1]:
+            image_final[n] = []
+            n += 1
+        image_final[n].append(image_sort[i][0])
+    return image_final
 
-##added by peigang##
-def get_image_depend_timerange(raw_image,time_range):
+##0831##
+def get_images_by_tag_from_Timage(user_id,input_tags,Timage):
     image_unsort = []
-    user_img = raw_image
+    image_final = []
+    search_tags = list(set(input_tags))
+    user_img = MongoHelper.get_images_by_user_and_imagename(user_id,Timage)
     for img in user_img:
-        for item in time_range:
-            if img['time'] < item[1] and img['time'] > item[0]:
-                image_unsort.append(img)
-    return image_unsort 
-    
+        count = 0
+        pattern_tag = list(set(img['tags']))
+        tag_length =len(pattern_tag)
+        for tag in search_tags:
+            for i in range(tag_length):
+                if re.search(pattern_tag[i], tag, re.M|re.I):
+                    count += 1
+        image_unsort.append((img,count))   
+    image_sort = sorted(image_unsort,key = lambda x:x[1],reverse= True)         
+    n = 0
+    for i in range(len(image_sort)):
+        j = i-1
+        if i == 0 or image_sort[i][1] != image_sort[j][1]:
+            image_final[n] = []
+            n += 1
+        image_final[n].append(image_sort[i][0])
+    return image_final
+
 def update_facename_in_person_list(face_name):
     pass
 
+##added 0831 yisa# 
+def sort_by_location(latitude,longitude, image_list):
+    sorted_images = []
+    if not image_list:
+        return None
+    
+    for images in image_list:
+        index_images = [[],[]]
+        for image in images:
+            x = image['location']['longitude']
+            y = image['location']['latitude']
+            index_images[0].append([x, y])
+            index_images[1].append(image['image_name'])
+# index_images = [[[14.32, 15.32], [0.89, 0.56], [6.36, 3.66]], ['img01', 'img03', 'img04']]
+        res_image_list = sort_by_closest_point(index_images, longitude, latitude)
+        sorted_images += res_image_list
+    return sorted_images
+
+
+def sort_by_closest_point(indexer, longitude, latitude):
+    sorted_images = []
+    if not indexer:
+        return None
+    if len(indexer[1]) is 1:
+        return indexer[1]
+    
+    pts = np.array(indexer[0])
+    tree = spatial.KDTree(pts)
+    loc_point = np.array([longitude, latitude])
+    results = tree.query(loc_point, k=len(indexer[1]))  #[[distance],[index]]
+    for res_index in results[1]:
+        sorted_images.append(indexer[1][res_index])
+    return sorted_images
+
+def get_image_by_time(user_id, time_list):
+    filename = 'time_indexer.dat'    # modify later when md5str available
+    if not os.path.exists(filename):
+        time_indexer = {}
+    else:
+        with open(filename,'rb') as fp:
+            time_indexer = pickle.load(fp)
+    time_sorted_imgs = sort_image_by_time(time_indexer, time_list)
+    return time_sorted_imgs
+
+def sort_image_by_time(img_list, time_ranges):
+    # time_list: [(st, et), (st, et)]
+    # img_list: [[t1, t2], [img1, img2]]
+    sort_img = []
+    for time_range in time_ranges:
+        for time in img_list[0]:
+            if time > time_range[1]:
+                break
+            elif time > time_range[0]:
+                sort_img.append(img_list[1][img_list[0].index(time)])
+    return sort_img
+
+#0831 yisa
 
 if __name__ == "__main__":
     get_closest_points('wang', [0,0])
