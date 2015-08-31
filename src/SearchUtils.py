@@ -8,8 +8,21 @@ import os
 from pymemcache.client.base import Client
 from scipy import spatial
 import numpy as np
+from hashlib import md5
+import pickle
 
-def sort_by_location(longitude, latitude, image_list):
+mc = Client((Config.config['memcached_host'], 11211))
+
+def get_user_path(userId):
+    md5ins = md5()
+    md5ins.update(userId)
+    md5str = md5ins.hexdigest()
+    path = Config.config['photo_root'] + md5str[0:2] + "/" + md5str[2:4] + "/" + md5str[4:6] + "/" + userId
+    if not os.path.exists(path):
+        os.makedirs(path)
+    return path
+
+def sort_by_location(latitude, longitude, image_list):
     sorted_images = []
     if not image_list:
         return None
@@ -41,6 +54,29 @@ def sort_by_closest_point(indexer, longitude, latitude):
     for res_index in results[1]:
         sorted_images.append(indexer[1][res_index])
     return sorted_images
+
+def get_image_by_time(user_id, time):
+    filename = 'indexer.dat'
+    indexer = mc.get(user_id)
+    time_sorted_imgs = []
+    if not indexer:
+        if not os.path.exists(filename):
+            indexer = {}
+        else:
+            with open(filename,'rb') as fp:
+                indexer = pickle.load(fp)
+    
+    if indexer is None:
+        return
+    
+    for t in tags:
+        pt = pypinyin.slug(t)
+        photo_list = indexer.get(pt, [])
+        photo_list.append(image_name)
+        indexer[pt] = photo_list
+    
+    mc.set(user_id, indexer)
+    return time_sorted_imgs
 
 if __name__ == '__main__':
     imageList = [[{'image_name': 'img02.jpg', 'location': {'longitude': 45.123456, 'latitude': 25.456789}},
