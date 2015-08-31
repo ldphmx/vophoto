@@ -14,7 +14,7 @@ mc = Client((Config.config['memcached_host'], 11211))
 
 def get_user_path(userId):
     md5ins = md5()
-    md5ins.update(userId)
+    md5ins.update(userId.encode())
     md5str = md5ins.hexdigest()
     path = Config.config['photo_root'] + md5str[0:2] + "/" + md5str[2:4] + "/" + md5str[4:6] + "/" + userId
     if not os.path.exists(path):
@@ -23,7 +23,7 @@ def get_user_path(userId):
     
 def generate_access_token(userId):
     md5ins = md5()
-    md5ins.update(userId)
+    md5ins.update(userId.encode())
     md5ins.update(Config.config['access_token'])
     return md5ins.hexdigest()
 
@@ -70,8 +70,11 @@ def get_user_photo_indexer(user_id):
         return indexer
     
     filename = get_user_path(user_id) + "/" + "indexer.dat"
-    with open(filename,'rb') as fp:
-        indexer = pickle.load(fp)
+    if not os.path.exists(filename):
+        indexer = {}
+    else:
+        with open(filename,'rb') as fp:
+            indexer = pickle.load(fp)
         
     mc.set(user_id, indexer)
     return indexer
