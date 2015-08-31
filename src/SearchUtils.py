@@ -10,6 +10,7 @@ from scipy import spatial
 import numpy as np
 from hashlib import md5
 import pickle
+from datetime import datetime
 
 mc = Client((Config.config['memcached_host'], 11211))
 
@@ -57,11 +58,17 @@ def sort_by_closest_point(indexer, longitude, latitude):
 
 def get_image_by_time(user_id, time_list):
     filename = 'time_indexer.dat'    # modify later when md5str available
-    if not os.path.exists(filename):
-        time_indexer = {}
-    else:
-        with open(filename,'rb') as fp:
-            time_indexer = pickle.load(fp)
+    time_indexer = mc.get(user_id)
+    if not time_indexer:
+        if not os.path.exists(filename):
+            time_indexer = {}
+        else:
+            with open(filename,'rb') as fp:
+                time_indexer = pickle.load(fp)
+    if time_indexer is None:
+        return None
+    
+    mc.set(user_id, time_indexer)
     time_sorted_imgs = sort_image_by_time(time_indexer, time_list)
     return time_sorted_imgs
 
@@ -78,6 +85,7 @@ def sort_image_by_time(img_list, time_ranges):
     return sort_img
 
 if __name__ == '__main__':
+    ''' test for location sort
     imageList = [[{'image_name': 'img02.jpg', 'location': {'longitude': 45.123456, 'latitude': 25.456789}},
                   {'image_name': 'img01.jpg', 'location': {'longitude': 14.123456, 'latitude': 15.456789}},
                  {'image_name': 'img03.jpg', 'location': {'longitude': 40.123456, 'latitude': 85.456789}}],
@@ -85,3 +93,12 @@ if __name__ == '__main__':
                   {'image_name': 'img05.jpg', 'location': {'longitude': 15.123456, 'latitude': 16.456789}}]]
     sorted_imgs = sort_by_location(14.123001, 15.456001, imageList)
     print(sorted_imgs)
+    '''
+    ''' test for time sorted
+    '''
+    initTime = '1999-01-01 00:00:00 +0800'
+    initTime2 = '2001-01-03 00:00:00 +0800'
+    myInitTime1 = datetime.strptime(initTime, '%Y-%m-%d %X %z')
+    myInitTime2 = datetime.strptime(initTime2, '%Y-%m-%d %X %z')
+    res = get_image_by_time('001', [(myInitTime1, myInitTime2)])
+    print(res)
