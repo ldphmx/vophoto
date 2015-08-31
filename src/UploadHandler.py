@@ -30,7 +30,7 @@ class UploadHandler(BaseAuthenticateHandler.BaseAuthenticateHandler):
                     MongoHelper.update_facename_in_person_list(face_name)
                 result['status'] = True
             
-            else:elif function == 'UPLOAD':    ###for images that has not uploaded###    
+            elif function == 'UPLOAD':    ###for images that has not uploaded###    
                 
                 path = Utils.get_user_path(userId)
             #if self.request.files:
