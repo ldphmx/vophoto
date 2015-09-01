@@ -113,6 +113,16 @@ def get_images_by_user(user_id):
         images.append(img)
     return images
     
+##added 0831
+def get_images_by_user_and_imagename(user_id,Timage):
+    images = []
+    db = conn.VoiceImageDB
+    coll = db.voice_image
+    user_img = coll.find({'user_id':user_id,'image_name':{"$in":Timage}})
+    for img in user_img:
+        images.append(img)
+    return images    
+    
     
 def get_person_id(user_id, name):
     person_ids = set()
@@ -162,7 +172,21 @@ def get_similar_candidates_rec(user_id, person_ids):
         index = index + 1
 
     return set(similars)
+
+#0831
+def update_facename_in_person_list(userId,image_name,face_name):
+    db = conn.VoiceImageDB
+    coll = db.voice_images
+    user_image = coll.find({'user_id':userId,'image_name':image_name})
+    add_facename(user_image,face_name)
     
+    
+def add_facename(image,face_name):
+    db = conn.VoiceImageDB
+    coll = db.person_list
+    person = coll.find({'face_id':image['face_id']})
+    person['name'].append(face_name)
+#0831    
 ###########added by yisha####################
 def check_img_exist(user_id, input_img):
     images = get_images_by_user(user_id)

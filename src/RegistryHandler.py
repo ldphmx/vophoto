@@ -35,7 +35,7 @@ class RegistryHandler(tornado.web.RequestHandler):
             user["_id"] = '';
             # result['user'] = user
             result['token'] = user['token']     #added by peigang
-            result['server'] = user['server']    #added by peigang
+            # result['server'] = user['server']    #added by peigang
             
         finally:
             self.write(json.dumps(result))
