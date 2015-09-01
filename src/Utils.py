@@ -248,7 +248,7 @@ def get_image_depend_timerange(raw_image,time_range):
     return image_unsort 
     
 ##0827##
-def get_images_by_tag(user_id, input_tags):
+def get_images_by_tag(user_id, input_tags,t):
     image_unsort = []
     image_final = []
     search_tags = list(set(input_tags))
@@ -263,17 +263,22 @@ def get_images_by_tag(user_id, input_tags):
                     count += 1
         image_unsort.append((img,count))   
     image_sort = sorted(image_unsort,key = lambda x:x[1],reverse= True)         
-    n = 0
-    for i in range(len(image_sort)):
-        j = i-1
-        if i == 0 or image_sort[i][1] != image_sort[j][1]:
-            image_final[n] = []
-            n += 1
-        image_final[n].append(image_sort[i][0])
-    return image_final
+    if t == 1:
+        n = 0
+        for i in range(len(image_sort)):
+            j = i-1
+            if i == 0 or image_sort[i][1] != image_sort[j][1]:
+                image_final[n] = []
+                n += 1
+                image_final[n].append(image_sort[i][0])
+        return image_final
+    elif t == 0:
+        for item in image_unsort:
+            image_final.append(item[0]['image_name'])
+        return image_final
 
 ##0831##
-def get_images_by_tag_from_Timage(user_id,input_tags,Timage):
+def get_images_by_tag_from_Timage(user_id,input_tags,Timage,t):
     image_unsort = []
     image_final = []
     search_tags = list(set(input_tags))
@@ -288,14 +293,19 @@ def get_images_by_tag_from_Timage(user_id,input_tags,Timage):
                     count += 1
         image_unsort.append((img,count))   
     image_sort = sorted(image_unsort,key = lambda x:x[1],reverse= True)         
-    n = 0
-    for i in range(len(image_sort)):
-        j = i-1
-        if i == 0 or image_sort[i][1] != image_sort[j][1]:
-            image_final[n] = []
-            n += 1
-        image_final[n].append(image_sort[i][0])
-    return image_final
+    if t == 1:
+        n = 0
+        for i in range(len(image_sort)):
+            j = i-1
+            if i == 0 or image_sort[i][1] != image_sort[j][1]:
+                image_final[n] = []
+                n += 1
+                image_final[n].append(image_sort[i][0])
+        return image_final
+    elif t == 0:
+        for item in image_unsort:
+            image_final.append(item[0]['image_name'])
+        return image_final
 
 def update_facename_in_person_list(face_name):
     pass
