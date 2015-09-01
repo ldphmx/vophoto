@@ -37,7 +37,7 @@ def get_meaningful_keywords(key_words):
             continue
         
         if pair[1] in Config.config['meaningful_pos']:
-            keys.append(pair[0])
+            keys.append(pypinyin.slug(pair[0]))
         
     
     return keys
@@ -181,7 +181,7 @@ def get_human_names(raw):
             continue
         
         if pair[1] in Config.config['human_name_pos']:
-            keys.append(pair[0])
+            keys.append(pypinyin.slug(pair[0]))
         
     return keys
     
@@ -254,14 +254,9 @@ def get_images_by_tag(user_id, input_tags,t):
     search_tags = list(set(input_tags))
     user_img = MongoHelper.get_images_by_user(user_id)
     for img in user_img:
-        count = 0
-        pattern_tag = list(set(img['tags']))
-        tag_length =len(pattern_tag)
-        for tag in search_tags:
-            for i in range(tag_length):
-                if re.search(pattern_tag[i], tag, re.M|re.I):
-                    count += 1
-        image_unsort.append((img,count))   
+        pattern_tags = list(set(img['tags']))
+        count = fuzz.ratio(search_tags, pattern_tags)
+        image_unsort.append((img,count))
     image_sort = sorted(image_unsort,key = lambda x:x[1],reverse= True)         
     if t == 1:
         n = 0
@@ -284,13 +279,8 @@ def get_images_by_tag_from_Timage(user_id,input_tags,Timage,t):
     search_tags = list(set(input_tags))
     user_img = MongoHelper.get_images_by_user_and_imagename(user_id,Timage)
     for img in user_img:
-        count = 0
-        pattern_tag = list(set(img['tags']))
-        tag_length =len(pattern_tag)
-        for tag in search_tags:
-            for i in range(tag_length):
-                if re.search(pattern_tag[i], tag, re.M|re.I):
-                    count += 1
+        pattern_tags = list(set(img['tags']))
+        count = fuzz.ratio(search_tags, pattern_tags)
         image_unsort.append((img,count))   
     image_sort = sorted(image_unsort,key = lambda x:x[1],reverse= True)         
     if t == 1:
