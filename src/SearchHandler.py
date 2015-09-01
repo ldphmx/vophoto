@@ -30,7 +30,7 @@ class SearchHandler(BaseAuthenticateHandler.BaseAuthenticateHandler):
             key_location = rawLocation.split(',')
             latitude = float(key_location[0])
             longitude = float(key_location[1])  
-            image_to_client = []
+            
             key_words = rawTag.split(' ')
             if key_words is None or len(key_words) == 0:
                 self.write(json.dumps(result))
@@ -39,27 +39,26 @@ class SearchHandler(BaseAuthenticateHandler.BaseAuthenticateHandler):
             face_name = Utils.get_human_names(rawTag)
             face_id = list(MongoHelper.get_similar_persons(user_id,face_name))  
             if face_id is not None:
-                meaningful.append(face_id)
+                meaningful.extend(face_id)
             
             time_range = NLPTimeConvertor.time_api(rawTag)
             if time_range is not None and key_location is not None:
-                Timage = Utils.get_image_by_time(user_id, time_range)    ##yisa
-                Tag_image = Utils.get_images_by_tag_from_Timage(user_id,meaningful,Timage)
+                Timage = Utils.get_image_by_time(user_id, time_range)    
+                Tag_image = Utils.get_images_by_tag_from_Timage(user_id,meaningful,Timage,1)
                 image = Utils.sort_by_location(latitude,longitude,Tag_image)
             elif time_range is not None and key_location is None:
                 Timage = Utils.get_image_by_time(user_id, time_range)
-                image = Utils.get_images_by_tag_from_Timage(user_id,meaningful,Timage)
+                image = Utils.get_images_by_tag_from_Timage(user_id,meaningful,Timage,0)
             elif time_range is None and key_location is not None:
-                Tag_image = Utils.get_images_by_tag(user_id, meaningful)
+                Tag_image = Utils.get_images_by_tag(user_id, meaningful,1)
                 image = Utils.sort_by_location(latitude,longitude,Tag_image)
             elif time_range is None and key_location is None:
-                image = Utils.get_images_by_tag(user_id, meaningful)
+                image = Utils.get_images_by_tag(user_id, meaningful,0)
                 
-            for item in image:
-                image_to_client.append(item)
+            
                 
             result['status'] = True
-            result['image'] = image_to_client
+            result['image'] = image
 
 
         finally:
