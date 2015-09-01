@@ -185,7 +185,9 @@ def add_facename(image,face_name):
     db = conn.VoiceImageDB
     coll = db.person_list
     person = coll.find({'face_id':image['face_id']})
-    person['name'].append(face_name)
+    person['name'].extend(face_name)
+    coll.save(person)
+    
 #0831    
 ###########added by yisha####################
 def check_img_exist(user_id, input_img):
