@@ -38,8 +38,17 @@ def get_meaningful_keywords(key_words):
         
         if pair[1] in Config.config['meaningful_pos']:
             keys.append(pypinyin.slug(pair[0]))
+    return 
+
+def get_object_keywords(key_words):
+    keys = []
+    for k in key_words:
+        pair = k.split('_')
+        if pair is None or len(pair) < 2:
+            continue
         
-    
+        if pair[1] in Config.config['object_pos']:
+            keys.append(pypinyin.slug(pair[0]))
     return keys
 
 ##added by peigang
