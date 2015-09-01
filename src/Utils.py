@@ -9,6 +9,7 @@ import pypinyin
 from pymemcache.client.base import Client
 from scipy import spatial
 import numpy as np
+import json
 
 mc = Client((Config.config['memcached_host'], 11211))
 
@@ -119,6 +120,43 @@ def search_images_by_tags(user_id, tags):
         
     return images
 
+# this function is used to translate natural language to cv tags
+# e.g. 小猫 is translated to cat
+def translate_tags(tags):
+    cv_tags = mc.get('cv_tags')
+    if not cv_tags:
+        cv_tags = load_cv_tags()
+        mc.set('cv_tags', json.dumps(cv_tags))
+    else:
+        cv_tags = json.loads(cv_tags.decode('utf-8'))
+    
+    ret = []
+    pytags = [pypinyin.slug(w,separator='') for w in tags]
+    for tag in pytags:
+        cand = cv_tags.get(tag, [])
+        ret.extend(cand)
+        
+    return ret
+
+def load_cv_tags():
+    cv_tags = {}
+    path = os.path.dirname(os.path.realpath(__file__)) + "/category.txt"
+    if not os.path.exists(path):
+        return {}
+    
+    file = open(path, encoding="utf-8")
+    for line in file:
+        items = line.strip().split(':')
+        tag = items[0]
+        words = [pypinyin.slug(w,separator='') for w in items[1].split('-')]
+        for word in words:
+            if not word in cv_tags.keys():
+                cv_tags[word] = []
+            cv_tags[word].append(tag)
+    
+    return cv_tags
+        
+
 def get_closest_points(user_id, point):
     indexer = get_user_photo_location_indexer(user_id)
     if not indexer:
@@ -194,7 +232,8 @@ def get_images_by_tag(user_id, input_tags):
     return image_sort
 
 if __name__ == "__main__":
-    get_closest_points('wang', [0,0])
+    print(translate_tags([u'小猫']))
+#     get_closest_points('wang', [0,0])
 #     print(pypinyin.slug((u'测试test')))
 #     image = {'tags': ['a','b'], 'image_name':'y.jpg'}
 #     update_user_photo_indexer('xxx', image)
