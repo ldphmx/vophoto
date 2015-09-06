@@ -13,7 +13,6 @@ class LoginHandler(tornado.web.RequestHandler):
         try:
             user_id = self.get_argument('user_name', '')
             password = self.get_argument('password', '')
-            Logger.info('user_id: ' + user_id + ', password: ' + password)
             
             if user_id == '' or password == '':
                 Logger.debug('user id null')
@@ -28,6 +27,6 @@ class LoginHandler(tornado.web.RequestHandler):
                 result['token'] = Utils.generate_access_token(user_id)
                 user_token = result['token']
                 MongoHelper.update_user_token(user_id,user_token)
-            Logger.info('Login successfully')
+                
         finally:
             self.write(json.dumps(result))
