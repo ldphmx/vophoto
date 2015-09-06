@@ -10,5 +10,5 @@ config = {
     'human_name_pos':['nh','r'],    #updated
     'object_pos':['n'],
     'memcached_host': '127.0.0.1',
-    'face_api_key':'842282b7109d49b1914b0541cb6b1ad5'
+    'face_api_key':'4e2bee77f4e74a5a89f725c44637b485'
 }

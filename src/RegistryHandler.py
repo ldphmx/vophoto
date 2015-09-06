@@ -37,5 +37,6 @@ class RegistryHandler(tornado.web.RequestHandler):
             result['token'] = user['token']     #added by peigang
             # result['server'] = user['server']    #added by peigang
             
+            Utils.create_face_group(user_id)
         finally:
             self.write(json.dumps(result))

@@ -11,6 +11,8 @@ from scipy import spatial
 import numpy as np
 import re
 import json
+import aiohttp
+import http.client
 
 mc = Client((Config.config['memcached_host'], 11211))
 
@@ -148,6 +150,28 @@ def translate_tags(tags):
         
     return ret
 
+def create_face_group(user_id):
+#     host = 'https://api.projectoxford.ai/asia/face/v0'
+    res = False
+    headers = {
+        # Request headers
+        'Content-Type': 'application/json',
+        'Ocp-Apim-Subscription-Key': Config.config['face_api_key'],
+    }
+    
+    body = {'name': user_id}
+    
+    try:
+        conn = http.client.HTTPSConnection("api.projectoxford.ai")
+        conn.request("PUT", "/asia/face/v0/facegroups/%s" % user_id, body=json.dumps(body), headers=headers)
+        response = conn.getresponse()
+        res = response.status == 200
+        conn.close()
+    except Exception as e:
+        print("[Errno {0}] {1}".format(e.errno, e.strerror))
+    finally:
+        return res
+    
 def load_cv_tags():
     cv_tags = {}
     path = os.path.dirname(os.path.realpath(__file__)) + "/category.txt"
@@ -400,7 +424,7 @@ def update_time_indexer(user_id, input_img_time):
 #0831 yisa
 
 if __name__ == "__main__":
-    get_closest_points('wang', [0,0])
+    create_face_group('wang')
 #     print(pypinyin.slug((u'测试test')))
 #     image = {'tags': ['a','b'], 'image_name':'y.jpg'}
 #     update_user_photo_indexer('xxx', image)
