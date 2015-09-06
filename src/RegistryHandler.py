@@ -14,8 +14,8 @@ class RegistryHandler(tornado.web.RequestHandler):
         result = {'status': False}
         Logger.debug('in register')
         try:
-            user_id = self.get_argument('user_id', '')
-            user_name = self.get_argument('user_name', '')
+            user_id = self.get_argument('user_id', '').lower()
+            user_name = self.get_argument('user_name', '').lower()
             password = self.get_argument('password', '')
             lang = self.get_argument('lang', 'zh-CN')
             if user_id == '' or user_name == '' or password == '':

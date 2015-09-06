@@ -165,12 +165,13 @@ def create_face_group(user_id):
         'Ocp-Apim-Subscription-Key': Config.config['face_api_key'],
     }
     
-    body = {'name': user_id}
+    body = {'name': user_id.lower()}
     
     try:
         conn = http.client.HTTPSConnection("api.projectoxford.ai")
-        conn.request("PUT", "/asia/face/v0/facegroups/%s" % user_id, body=json.dumps(body), headers=headers)
+        conn.request("PUT", "/asia/face/v0/facegroups/%s" % user_id.lower(), body=json.dumps(body), headers=headers)
         response = conn.getresponse()
+        data = response.read()
         res = response.status == 200
         conn.close()
     except Exception as e:

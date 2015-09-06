@@ -16,7 +16,7 @@ class UploadHandler(BaseAuthenticateHandler.BaseAuthenticateHandler):
         try:
             userId = self.get_argument('user_id', '')
             rawLocation = self.get_argument('loc','')   #add           
-            desc = [pypinyin.slug(self.get_argument('desc', ''))]
+            desc = self.get_argument('tag', '')
             rawTags = self.get_argument('tag', '')
             rowTime = self.get_argument('time', '')
             function = self.get_argument('func','')  #

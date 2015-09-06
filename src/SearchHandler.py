@@ -49,15 +49,18 @@ class SearchHandler(BaseAuthenticateHandler.BaseAuthenticateHandler):
                 key_location_tag = Utils.get_tag_from_rawlocation(key_location)
                 print('key_location_tag:',key_location_tag)    
                 meaningful.extend(key_location_tag)
-            print('meaningful:',meaningful)
-#             face_name = Utils.get_human_names(rawTag)
-#             face_id = list(MongoHelper.get_similar_persons(user_id,face_name))  
-#             if face_id :
-#                 meaningful.extend(face_id)
-#             object_name = Utils.get_object_keywords(key_words)
-#             cv_tags = Utils.translate_tags(object_name)
-#             if cv_tags:
-#                 meaningful.extend(cv_tags)
+                print('meaningful_add_rawlocation_tag::',meaningful)
+            
+            face_name = Utils.get_human_names(rawTag)
+            face_id = list(MongoHelper.get_similar_persons(user_id,face_name))  
+            if face_id :
+                meaningful.extend(face_id)
+                print('meaningful_add_face_id:',meaningful)
+            object_name = Utils.get_object_keywords(key_words)
+            cv_tags = Utils.translate_tags(object_name)
+            if cv_tags:
+                meaningful.extend(cv_tags)
+                print('meaningful_add_cv_tag:',meaningful)
             
             time_range = NLPTimeConvertor.time_api(rawTag)
             print('time_range:',time_range)
