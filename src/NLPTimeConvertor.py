@@ -23,9 +23,9 @@ import Logger
 # 昨天_nt 的_u 照片_n
 # 上周六_nt 的_u 照片_n
 # 前年_nt 的_u 照片_n
-result = []
-final = []
-search_string = []
+result = []#最后得到的时间结果
+final = []#_nd 和 _nt词性的列表
+search_string = []#只含有_nt词性的列表，用于搜索具体年月日
 
 
 def do_parse_raw_year(regex, date_str):

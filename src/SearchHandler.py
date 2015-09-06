@@ -30,7 +30,7 @@ class SearchHandler(BaseAuthenticateHandler.BaseAuthenticateHandler):
             key_location = rawLocation.split(',')
             latitude = float(key_location[0])
             longitude = float(key_location[1])  
-            image_to_client = []
+            
             key_words = rawTag.split(' ')
             if key_words is None or len(key_words) == 0:
                 self.write(json.dumps(result))
@@ -38,28 +38,31 @@ class SearchHandler(BaseAuthenticateHandler.BaseAuthenticateHandler):
             meaningful = Utils.get_meaningful_keywords(key_words)
             face_name = Utils.get_human_names(rawTag)
             face_id = list(MongoHelper.get_similar_persons(user_id,face_name))  
-            if face_id is not None:
-                meaningful.append(face_id)
+            if face_id :
+                meaningful.extend(face_id)
+            object_name = Utils.get_object_keywords(key_words)
+            cv_tags = Utils.translate_tags(object_name)
+            if cv_tags:
+                meaningful.extend(cv_tags)
             
             time_range = NLPTimeConvertor.time_api(rawTag)
-            if time_range is not None and key_location is not None:
-                Timage = Utils.get_image_by_time(user_id, time_range)    ##yisa
-                Tag_image = Utils.get_images_by_tag_from_Timage(user_id,meaningful,Timage)
+            if time_range and key_location:
+                Timage = Utils.get_image_by_time(user_id, time_range)    
+                Tag_image = Utils.get_images_by_tag_from_Timage(user_id,meaningful,Timage,1)
                 image = Utils.sort_by_location(latitude,longitude,Tag_image)
-            elif time_range is not None and key_location is None:
+            elif time_range and not key_location:
                 Timage = Utils.get_image_by_time(user_id, time_range)
-                image = Utils.get_images_by_tag_from_Timage(user_id,meaningful,Timage)
-            elif time_range is None and key_location is not None:
-                Tag_image = Utils.get_images_by_tag(user_id, meaningful)
+                image = Utils.get_images_by_tag_from_Timage(user_id,meaningful,Timage,0)
+            elif not time_range and key_location:
+                Tag_image = Utils.get_images_by_tag(user_id, meaningful,1)
                 image = Utils.sort_by_location(latitude,longitude,Tag_image)
-            elif time_range is None and key_location is None:
-                image = Utils.get_images_by_tag(user_id, meaningful)
+            elif not time_range and not key_location:
+                image = Utils.get_images_by_tag(user_id, meaningful,0)
                 
-            for item in image:
-                image_to_client.append(item)
+            
                 
             result['status'] = True
-            result['image'] = image_to_client
+            result['image'] = image
 
 
         finally:
