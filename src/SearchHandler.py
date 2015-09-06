@@ -14,14 +14,14 @@ class SearchHandler(BaseAuthenticateHandler.BaseAuthenticateHandler):
         Logger.debug('in search')
         try:
             user_id = self.get_argument('user_id', '')
-            desc = self.get_argument('desc','')   #add
+            desc = self.get_argument('desc','')
             
             rawTag = self.get_argument('tag', '')
             # 我_r 想_v 找_v 去年_nt 夏天_nt 在_p 西雅图_ns 农贸市场_n 的_u 照片_n
             rawLocation = self.get_argument('loc','')
             token = self.get_argument('token','')
             user = MongoHelper.get_user_by_id(user_id)
-            Logger.debug('user_id: ' + user_id + ', rawTag: ' + rawTag + ', rawLocation: ' + rawLocation + ', user: ' + user)
+            
             if token != user['token']:
                 self.write(json.dumps(result))
                 Logger.debug('user token false')
@@ -38,6 +38,8 @@ class SearchHandler(BaseAuthenticateHandler.BaseAuthenticateHandler):
                 self.write(json.dumps(result))
                 Logger.debug('key_word is none')
                 return
+            
+            Logger.info('user_id: ' + user_id + ', rawTag: ' + rawTag + ', rawLocation: ' + rawLocation + ', user: ' + user)
             
             meaningful = Utils.get_meaningful_keywords(key_words)
             Logger.debug('meaningful: ' + meaningful)
@@ -81,7 +83,7 @@ class SearchHandler(BaseAuthenticateHandler.BaseAuthenticateHandler):
             print('image:',image)    
             result['status'] = True
             result['image'] = image
-
-
+            
+            Logger.info('search successfully')
         finally:
             self.write(json.dumps(result))

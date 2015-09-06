@@ -20,12 +20,16 @@ class RegistryHandler(tornado.web.RequestHandler):
             lang = self.get_argument('lang', 'zh-CN')
             if user_id == '' or user_name == '' or password == '':
                 self.write(json.dumps(result))
+                Logger.debug('user_id or name or password null')
                 return
             
             user = MongoHelper.get_user_by_id(user_id)
             if user is not None:
                 self.write(json.dumps(result))
+                Logger.debug('user exists')
                 return
+            
+            Logger.info('user_id: ' + user_id + ', username: ' + user_name + ', password: ' + password)
             
             user = {'user_id': user_id, 'user_name': user_name, 'password': password, 'lang': lang}
             server = MongoHelper.allocate_user_server()
@@ -40,5 +44,6 @@ class RegistryHandler(tornado.web.RequestHandler):
             # result['server'] = user['server']    #added by peigang
             
             Utils.create_face_group(user_id)
+            Logger.info('register successfully')
         finally:
             self.write(json.dumps(result))
