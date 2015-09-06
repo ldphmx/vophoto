@@ -17,34 +17,34 @@ class UploadHandler(BaseAuthenticateHandler.BaseAuthenticateHandler):
             userId = self.get_argument('user_id', '')
             rawLocation = self.get_argument('loc','')   #add           
             desc = self.get_argument('tag', '')
-            rawLocation = self.get_argument('loc','')   
-            desc = [pypinyin.slug(self.get_argument('desc', ''))]
             rawTags = self.get_argument('tag', '')
             rowTime = self.get_argument('time', '')
-            function = self.get_argument('func','')  
-            token = self.get_argument('token','')           
-            image_name = self.get_argument('image_name','')
-            Logger.debug('image_name:' + image_name + ', function: ' + function)
+            function = self.get_argument('func','')  #
+            token = self.get_argument('token','')           #add
+            image_name = self.get_argument('image_name','')    #add
+            print('image_name:',image_name)
+            print('function:',function)
             user = MongoHelper.get_user_by_id(userId)
-            if token != user['token']:
-                Logger.debug('token value false')
+            if token != user['token']:      #add
                 return
-            
+            ###for images that has uploaded:if this image was existed,then the customer just want to extend image-tags###
             if function == 'UPDATE':
-                Logger.info('rawTags: ' + rawTags + ', userId: ' + userId + ', image_name: ' + image_name)
+                print('rawTags:',rawTags)
+                print('userId:',userId)
+                print('image_name:',image_name)
                 update_image_tag(rawTags,userId,image_name)
                 MongoHelper.update_image_desc_and_status(desc,userId,image_name)  
                 result['status'] = True
             
-            elif function == 'UPLOAD':
-                Logger.info('rawTags: ' + rawTags + ', userId: ' + userId)
+            elif function == 'UPLOAD':    ###for images that has not uploaded###    
+                print('userId',userId)
+                print('rawTags',rawTags)
                 path = Utils.get_user_path(userId)    #error
             #if self.request.files:
                 files = self.request.files['image']
             # process image file
                 if files is None or len(files) == 0:
                     self.write(json.dumps(result))
-                    Logger.debug('file none')
                     return
                 fileinfo = files[0]
                 fname = fileinfo['filename']    
@@ -79,7 +79,6 @@ class UploadHandler(BaseAuthenticateHandler.BaseAuthenticateHandler):
 #                 face_name = Utils.get_human_names(rawTags)
 #                 MongoHelper.update_person_list(userId,face_name)        ##此函数未写
                 result['status'] = True
-                Logger.info('upload successfully')
         finally:
             self.write(json.dumps(result))
             

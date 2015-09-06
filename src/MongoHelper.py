@@ -2,6 +2,7 @@
 
 import pymongo
 import Config
+from datashape.coretypes import Null
 
 conn = pymongo.MongoClient(Config.config['mongo_url'])
 
@@ -29,33 +30,12 @@ def register_user(user):
     db = conn.VoiceImageDB
     coll = db.user_profile
     coll.insert_one(user)
-    
-# def get_server_users():
-#     db = conn.VoiceImageDB
-#     coll = db.server_usage
-#     doc = coll.find_one()
-#     if doc is None:
-#         servers = Config.config['servers']
-#         doc = {}
-#         for server in servers:
-#             doc[server['name']] = 0
-#         coll.insert_one(doc)
-        
-#     return doc
-
-# def increase_server_usage(server_name, count):
-#     db = conn.VoiceImageDB
-#     coll = db.server_usage
-#     doc = coll.find_one()
-#     if doc is not None:
-#         doc[server_name] = doc[server_name] + count
-#         coll.save(doc)
 
 def allocate_user_server():
     db = conn.VoiceImageDB
     coll = db.server_usage
     docs = coll.find()
-    if docs is None:
+    if docs.count is 0:
         servers = Config.config['servers']
         for server in servers:
             server['count'] = 0
@@ -220,7 +200,8 @@ def get_earliest_date(user_id):
 if __name__ == "__main__":
 #     print(get_similee_candidates_rec('wang', ['94c3aa36-90ba-47a0-af6c-c67fc2863be9']))
 #     print(get_similar_candidates_rec('wang', ['94c3aa36-90ba-47a0-af6c-c67fc2863be9']))
-    print(get_similar_persons('wang', [u'郭德纲']))
+#     print(get_similar_persons('wang', [u'郭德纲']))
+    print(allocate_user_server())
     
     
     

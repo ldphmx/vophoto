@@ -5,7 +5,7 @@ from src import Logger
 import MongoHelper
 import json
 import Utils
-from src import BaseAuthenticateHandler
+import BaseAuthenticateHandler
 import NLPTimeConvertor
 
 class SearchHandler(BaseAuthenticateHandler.BaseAuthenticateHandler):
@@ -14,35 +14,31 @@ class SearchHandler(BaseAuthenticateHandler.BaseAuthenticateHandler):
         Logger.debug('in search')
         try:
             user_id = self.get_argument('user_id', '')
-            desc = self.get_argument('desc','')
-            
+            desc = self.get_argument('desc','')   #add
+            print('user_id:',user_id)
             rawTag = self.get_argument('tag', '')
             # 我_r 想_v 找_v 去年_nt 夏天_nt 在_p 西雅图_ns 农贸市场_n 的_u 照片_n
+            print('rawTag:',rawTag)
             rawLocation = self.get_argument('loc','')
+            print('rawLocation:',rawLocation)
             token = self.get_argument('token','')
             user = MongoHelper.get_user_by_id(user_id)
-            
+            print('user:',user)
             if token != user['token']:
                 self.write(json.dumps(result))
-                Logger.debug('user token false')
                 return
         
             if user_id == '' or rawTag == '':
                 self.write(json.dumps(result))
-                Logger.debug('user id or rawTag null')
                 return
 
             key_words = rawTag.split(' ')
-            Logger.debug('key words: ' + key_words)
+            print(key_words)
             if key_words is None or len(key_words) == 0:
                 self.write(json.dumps(result))
-                Logger.debug('key_word is none')
                 return
-            
-            Logger.info('user_id: ' + user_id + ', rawTag: ' + rawTag + ', rawLocation: ' + rawLocation + ', user: ' + user)
-            
             meaningful = Utils.get_meaningful_keywords(key_words)
-            Logger.debug('meaningful: ' + meaningful)
+            print('meaningful:',meaningful)
             if rawLocation != '': 
                 key_location = rawLocation.split(',')
                 print('key_locayion:',key_location)
@@ -66,10 +62,10 @@ class SearchHandler(BaseAuthenticateHandler.BaseAuthenticateHandler):
                 meaningful.extend(cv_tags)
                 print('meaningful_add_cv_tag:',meaningful)
             Logger.debug('meaningful: ' + meaningful)
-            
+
             
             time_range = NLPTimeConvertor.time_api(rawTag)
-            Logger.debug('time_range: ' + time_range)
+            print('time_range:',time_range)
             if time_range and rawLocation != '':
                 Timage = Utils.get_image_by_time(user_id, time_range)    
                 Tag_image = Utils.get_images_by_tag_from_Timage(user_id,meaningful,Timage,1)
@@ -88,7 +84,7 @@ class SearchHandler(BaseAuthenticateHandler.BaseAuthenticateHandler):
             print('image:',image)    
             result['status'] = True
             result['image'] = image
-            
-            Logger.info('search successfully')
+
+
         finally:
             self.write(json.dumps(result))
