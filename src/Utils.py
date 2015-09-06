@@ -391,8 +391,7 @@ def update_time_indexer(user_id, input_img_time):
 #0831 yisa
 
 if __name__ == "__main__":
-    print(translate_tags([u'小猫']))
-#     get_closest_points('wang', [0,0])
+    get_closest_points('wang', [0,0])
 #     print(pypinyin.slug((u'测试test')))
 #     image = {'tags': ['a','b'], 'image_name':'y.jpg'}
 #     update_user_photo_indexer('xxx', image)
