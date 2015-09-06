@@ -3,7 +3,11 @@
 import re
 import datetime
 import calendar
-import Logger
+from pymemcache.client.base import Client 
+import os
+import pickle
+from src import Logger
+from src import Lunardate
 
 ############ abs
 # 2014年_nt 的_u 照片_n
@@ -176,65 +180,100 @@ def do_parse_newyears_day(regex,date_str):
     Logger.debug('do parse: ' + regex + " - " + date_str) 
     return (1, 1)
 
-def do_Valentine_Day(regex,date_str):
+def do_parse_valentine_day(regex,date_str):
     Logger.debug('do parse: ' + regex + " - " + date_str)
     return (2,14)
 
-def do_wenmen_day(regex,date_str):
+def do_parse_women_day(regex,date_str):
     Logger.debug('do parse: ' + regex + " - " + date_str)
     return (3,8)
 
-def do_plantree_day(regex,date_str):
+def do_parse_plantree_day(regex,date_str):
     Logger.debug('do parse: ' + regex + " - " + date_str)
     return (3,12)
 
-def do_fools_day(regex,date_str):
+def do_parse_fools_day(regex,date_str):
     Logger.debug('do parse: ' + regex + " - " + date_str)
     return (4,1)
 
-def do_qingming_day(regex,date_str):
+def do_parse_qingming_day(regex,date_str):
     Logger.debug('do parse: ' + regex + " - " + date_str)
     return (4,5)
 
-def do_labors_day(regex,date_str):
+def do_parse_labors_day(regex,date_str):
     Logger.debug('do parse: ' + regex + " - " + date_str)
     return (5,1)
 
-def do_children_day(regex,date_str):
+def do_parse_children_day(regex,date_str):
     Logger.debug('do parse: ' + regex + " - " + date_str)
     return (6,2)
 
-def do_71_day(regex,date_str):
+def do_parse_71_day(regex,date_str):
     Logger.debug('do parse: ' + regex + " - " + date_str)
     return (8,1)
 
-def do_81_day(regex,date_str):
+def do_parse_81_day(regex,date_str):
     Logger.debug('do parse: ' + regex + " - " + date_str)
     return (8,1)
 
-def do_nation_day(regex,date_str):
+def do_parse_nation_day(regex,date_str):
     Logger.debug('do parse: ' + regex + " - " + date_str)
     return (10,1)
 
-def do_Halloween_day(regex,date_str):
+def do_parse_halloween_day(regex,date_str):
     Logger.debug('do parse: ' + regex + " - " + date_str)
     return (10,31)
 
-def do_singal_day(regex,date_str):
+def do_parse_singal_day(regex,date_str):
     Logger.debug('do parse: ' + regex + " - " + date_str)
     return (11,11)
 
-def do_Thanksgiving_day(regex,date_str):
+def do_parse_thanksgiving_day(regex,date_str):
     Logger.debug('do parse: ' + regex + " - " + date_str)
     return (11,25)
 
-def do_ChristmasEve_day(regex,date_str):
+def do_parse_christmasEve_day(regex,date_str):
     Logger.debug('do parse: ' + regex + " - " + date_str)
     return (12,24)
 
-def do_Christmas_day(regex,date_str):
+def do_parse_christmas_day(regex,date_str):
     Logger.debug('do parse: ' + regex + " - " + date_str)
     return (12,25)
+
+def do_parse_chinesenewyear_day(regex,date_str):
+    Logger.debug('do parse: ' + regex + " - " + date_str)
+    return (1,1)#阴历
+
+def do_parse_lantern_day(regex,date_str):
+    Logger.debug('do parse: ' + regex + " - " + date_str)
+    return (1,15)#阴历
+
+def do_parse_dragonboat_day(regex,date_str):
+    Logger.debug('do parse: ' + regex + " - " + date_str)
+    return (5,5)#阴历
+
+def do_parse_chinesevalentine_day(regex,date_str):
+    Logger.debug('do parse: ' + regex + " - " + date_str)
+    return (7,7)#阴历
+
+def do_parse_midautumn_day(regex,date_str):
+    Logger.debug('do parse: ' + regex + " - " + date_str)
+    return (8,15)#阴历
+
+def do_parse_doubleninth_day(regex,date_str):
+    Logger.debug('do parse: ' + regex + " - " + date_str)
+    return (9,9)#阴历
+
+def do_parse_laba_day(regex,date_str):
+    Logger.debug('do parse: ' + regex + " - " + date_str)
+    return (12,8)#阴历
+
+def do_parse_newyeareve_day(regex,date_str):
+    Logger.debug('do parse: ' + regex + " - " + date_str)
+    return (12,30)#阴历
+
+#user_earliest_time = "2000-1-1 00:00:00 +0800"
+user_earliest_time = datetime.datetime.strptime("2010-1-1 00:00:00 +0800",'%Y-%m-%d %X %z')
 
 year_regex = [(u'(\d+)年', do_parse_raw_year),
               (u'去年', do_parse_last_year),
@@ -256,22 +295,31 @@ relative_regex = [(u'[上|(最近)]([一二三四五六七八九两1-9]{0,1})[�
                   (u'上周([一二三四五六日1-6]{0,1})', do_parse_last_weekday),
                   (u'[上|(最近)]([一二三四五六七八九两1-9])周', do_parse_last_n_week)]
 
-festival_regex = [(u'((元旦节)|(新年))', do_parse_newyears_day),
-                 (u'(情人节)',do_Valentine_Day),
-                 (u'((三八妇女节)|(妇女节))',do_wenmen_day),
-                 (u'(植树节)',do_plantree_day),
-                 (u'(愚人节)',do_fools_day),
-                 (u'(清明节)',do_qingming_day),
-                 (u'((劳动节)|(五一))',do_labors_day),
-                 (u'(儿童节)',do_children_day),
-                 (u'(建党节)|(建党日)|(七一)',do_71_day),
-                 (u'(建军节)',do_81_day),
-                 (u'((国庆)|(十一)|(国庆节))',do_nation_day),
-                 (u'(万圣节)',do_Halloween_day),
-                 (u'((光棍节)|(双十一))',do_singal_day),
-                 (u'(感恩节)',do_Thanksgiving_day),
-                 (u'(平安夜)',do_ChristmasEve_day),
-                 (u'(圣诞节)',do_Christmas_day)]
+festival_regex = [(u'((元旦节?)|(新年))', do_parse_newyears_day),
+                 (u'情人节',do_parse_valentine_day),
+                 (u'((三八妇女节)|(妇女节))',do_parse_women_day),
+                 (u'植树节',do_parse_plantree_day),
+                 (u'愚人节',do_parse_fools_day),
+                 (u'清明节?',do_parse_qingming_day),
+                 (u'((劳动节)|(五一))',do_parse_labors_day),
+                 (u'儿童节',do_parse_children_day),
+                 (u'(建党节)|(建党日)|(七一)',do_parse_71_day),
+                 (u'建军节',do_parse_81_day),
+                 (u'((国庆节?)|(十一))',do_parse_nation_day),
+                 (u'万圣节',do_parse_halloween_day),
+                 (u'((光棍节)|(双十一))',do_parse_singal_day),
+                 (u'感恩节',do_parse_thanksgiving_day),
+                 (u'平安夜',do_parse_christmasEve_day),
+                 (u'圣诞节?',do_parse_christmas_day)]
+
+lunar_festival_regex = [(u'(春节)|(正月初一)|(大年初一)',do_parse_chinesenewyear_day),
+                        (u'(元宵节)|(灯节)|(正月十五)',do_parse_lantern_day),
+                        (u'(端午节?)|(粽子节)',do_parse_dragonboat_day),
+                        (u'七夕节?',do_parse_chinesevalentine_day),
+                        (u'中秋节?',do_parse_midautumn_day),
+                        (u'重阳节?',do_parse_doubleninth_day),
+                        (u'腊八节?',do_parse_laba_day),
+                        (u'除夕夜?',do_parse_newyeareve_day)]
 
 def convert_chinese_num(num):
     if num == '1'  or num == u'一':
@@ -311,9 +359,12 @@ def parse_nl_date(date_str):
     month_set = False
     day_set = False
     festival_set = False
+    islunar_set = False
             
     for st in date_str:
         #print('paring string is' + st)
+        if not (re.match(u'(春节)|(正月十)|(正月初)|(大年初)|(元宵节)|(灯节)|(端午)|(粽子节)|(七夕)|(中秋)|(重阳)|(腊八)|(除夕)', st) == None):
+            islunar_set = True
         res = parse_relative(st)
         #print('after parsing res is:')
         #print(res)
@@ -331,6 +382,12 @@ def parse_nl_date(date_str):
                 month_set = True
                 day_set = True
                 festival_set =True
+            res = parse_lunar_festival(st)
+            if res:
+                (start_month,start_day) = res
+                (end_month,end_day)     = res
+                month_set = True
+                day_set = True
             if year_set and  month_set and day_set and festival_set:
                 break 
             res = parse_month(st)
@@ -355,15 +412,54 @@ def parse_nl_date(date_str):
                     
             if not day_set:
                 (start_day, end_day) = (1,31)
-              
+                
+    if islunar_set:
+        lunar_start = Lunardate.LunarDate(start_year, start_month, start_day).toSolarDate()
+        lunar_end = Lunardate.LunarDate(end_year, end_month, end_day).toSolarDate()
+        
+        start_date_string = trans_date_to_string(lunar_start.year, lunar_start.month, lunar_start.day)
+        end_date_string   = trans_date_to_string(lunar_end.year, lunar_end.month, lunar_end.day) 
+        start_time = datetime.datetime.strptime(start_date_string,'%Y-%m-%d %X %z')
+        end_time   = datetime.datetime.strptime(end_date_string,'%Y-%m-%d %X %z')   
+          
+        result.append((start_time,end_time))
+        
+        if not year_set:
+            user_earliest_time_str = user_earliest_time.__str__()
+            user_earliest_year = int(user_earliest_time_str[0:4])
+            while(start_year > user_earliest_year):
+                start_year = start_year - 1
+                end_year = end_year - 1
+                lunar_start = Lunardate.LunarDate(start_year, start_month, start_day).toSolarDate()
+                lunar_end = Lunardate.LunarDate(end_year, end_month, end_day).toSolarDate()
+                start_date_string = trans_date_to_string(lunar_start.year, lunar_start.month, lunar_start.day)
+                end_date_string   = trans_date_to_string(lunar_end.year, lunar_end.month, lunar_end.day) 
+                start_time = datetime.datetime.strptime(start_date_string,'%Y-%m-%d %X %z')
+                end_time   = datetime.datetime.strptime(end_date_string,'%Y-%m-%d %X %z')   
+                result.append((start_time,end_time))
+        
+        return result
+    
     start_date_string = trans_date_to_string(start_year, start_month, start_day)
     end_date_string   = trans_date_to_string(end_year, end_month, end_day) 
     
     start_time = datetime.datetime.strptime(start_date_string,'%Y-%m-%d %X %z')
-    end_time   = datetime.datetime.strptime(start_date_string,'%Y-%m-%d %X %z')   
+    end_time   = datetime.datetime.strptime(end_date_string,'%Y-%m-%d %X %z')   
           
     result.append((start_time,end_time))
       
+    if not year_set and not islunar_set:
+        #用户没有说明具体哪一年 需要从最新的一年开始一直到用户最早出现的一年的时间全部都返回
+        user_earliest_time_str = user_earliest_time.__str__()
+        user_earliest_year = int(user_earliest_time_str[0:4])
+        while(start_year > user_earliest_year):
+            start_year = start_year - 1
+            end_year = end_year - 1
+            start_date_string = trans_date_to_string(start_year, start_month, start_day)
+            end_date_string   = trans_date_to_string(end_year, end_month, end_day)
+            start_time = datetime.datetime.strptime(start_date_string,'%Y-%m-%d %X %z')
+            end_time = datetime.datetime.strptime(end_date_string,'%Y-%m-%d %X %z')   
+            result.append((start_time,end_time))
     
     return result
 
@@ -397,6 +493,8 @@ def parse_relative(date_str):
 def parse_festival(date_str):
     return parse_date_item(date_str,festival_regex)
 
+def parse_lunar_festival(date_str):
+    return parse_date_item(date_str,lunar_festival_regex)
 
 def time_api(str):
     
@@ -439,7 +537,8 @@ if __name__ == "__main__":
 #     print parse_nl_date([u'秋天'])
 #     print parse_nl_date([u'冬天'])
     
-    Logger.debug(time_api( "我_r 要_v 找_v 去年_nt 圣诞节_nt 在_p 微软_ni 附近_nd 拍_v 的_u 照片_n"))
+    Logger.debug(time_api( "我_r 要_v 找_v 端午节_nt 在_p 微软_ni 附近_nd 拍_v 的_u 照片_n"))
+    #print (Lunardate.LunarDate(1998, 9, 4).toSolarDate())
     
     
 #     print parse_nl_date([u'3月'])
