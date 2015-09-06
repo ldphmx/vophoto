@@ -101,6 +101,16 @@ def extend_tags_in_existimage(user_id,image_name,tags):
     doc = coll.find_one({'user_id': user_id,'image_name':image_name})
     doc['tags'].extend(tags)
     coll.save(doc)
+    
+##0906    
+def update_image_desc_and_status(desc,userId,image_name):
+    db = conn.VoiceImageDB
+    coll = db.voice_images
+    doc = coll.find_one({'user_id': userId,'image_name':image_name})
+    doc['desc'].append(desc)
+    doc['processed'] = False
+    coll.save(doc)
+    
 
 ###########added by yisha####################
 # search in db for img of input user_id

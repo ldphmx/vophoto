@@ -3,14 +3,16 @@
 import tornado.web
 import MongoHelper
 import json
+from src import Logger
 import Utils
 
 class RegistryHandler(tornado.web.RequestHandler):
     def get(self):
-        self.write('only post is supported.')
+        self.write('sb only post is supported.')
         
     def post(self):
         result = {'status': False}
+        Logger.debug('in register')
         try:
             user_id = self.get_argument('user_id', '')
             user_name = self.get_argument('user_name', '')
@@ -33,7 +35,7 @@ class RegistryHandler(tornado.web.RequestHandler):
             MongoHelper.increase_server_usage(server, 1)
             result['status'] = True
             user["_id"] = '';
-            # result['user'] = user
+            result['user'] = user
             result['token'] = user['token']     #added by peigang
             # result['server'] = user['server']    #added by peigang
             
