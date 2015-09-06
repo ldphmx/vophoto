@@ -3,7 +3,7 @@
 import Config
 from hashlib import md5
 import os
-import MongoHelper
+from src import MongoHelper
 import pickle
 import pypinyin
 from pymemcache.client.base import Client

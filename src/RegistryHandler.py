@@ -1,7 +1,7 @@
 #Encoding=UTF8
 
 import tornado.web
-import MongoHelper
+from src import MongoHelper
 import json
 from src import Logger
 import Utils
