@@ -1,8 +1,7 @@
 #Encoding=UTF8
 
 import pymongo
-import Config
-from datashape.coretypes import Null
+from src import Config
 
 conn = pymongo.MongoClient(Config.config['mongo_url'])
 
@@ -35,7 +34,7 @@ def allocate_user_server():
     db = conn.VoiceImageDB
     coll = db.server_usage
     docs = coll.find()
-    if docs.count is 0:
+    if docs.count() is 0:
         servers = Config.config['servers']
         for server in servers:
             server['count'] = 0
@@ -46,13 +45,14 @@ def allocate_user_server():
             return doc['name']
     return None
 
-def increase_server_usage(server_name, count):
+def increase_server_usage(server_name, num):
     db = conn.VoiceImageDB
     coll = db.server_usage
-    doc = coll.find_one({'name': server_name})
-    if doc is not None:
-        doc['count'] += count
-        coll.save(doc)
+    doc = coll.find({'name': server_name})
+    if doc.count() is not 0:
+        newCount = num + doc[0]['count']
+        serverID = doc[0]['_id']
+        coll.update_one({'_id': serverID}, {'$set': {'count': newCount}})
         
 def save_image(image):
     db = conn.VoiceImageDB
@@ -91,9 +91,6 @@ def update_image_desc_and_status(desc,userId,image_name):
     doc['processed'] = False
     coll.save(doc)
     
-
-###########added by yisha####################
-# search in db for img of input user_id
 def get_images_by_user(user_id):
     images = []
     db = conn.VoiceImageDB
@@ -202,6 +199,8 @@ if __name__ == "__main__":
 #     print(get_similar_candidates_rec('wang', ['94c3aa36-90ba-47a0-af6c-c67fc2863be9']))
 #     print(get_similar_persons('wang', [u'郭德纲']))
     print(allocate_user_server())
+    increase_server_usage('localhost', 1)
+    
     
     
     

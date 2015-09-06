@@ -4,7 +4,7 @@ import tornado.web
 from src import MongoHelper
 import json
 from src import Logger
-import Utils
+from src import Utils
 
 class RegistryHandler(tornado.web.RequestHandler):
     def get(self):
