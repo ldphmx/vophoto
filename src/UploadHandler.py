@@ -15,13 +15,10 @@ class UploadHandler(BaseAuthenticateHandler.BaseAuthenticateHandler):
         Logger.debug('in upload')
         try:
             userId = self.get_argument('user_id', '')
-<<<<<<< HEAD
             rawLocation = self.get_argument('loc','')   #add           
             desc = self.get_argument('tag', '')
-=======
             rawLocation = self.get_argument('loc','')   
             desc = [pypinyin.slug(self.get_argument('desc', ''))]
->>>>>>> dee034f50937a3f345c6b495e8c04a2e919f156b
             rawTags = self.get_argument('tag', '')
             rowTime = self.get_argument('time', '')
             function = self.get_argument('func','')  
