@@ -14,7 +14,7 @@ import aiohttp
 import http.client
 from fuzzywuzzy import fuzz
 from datetime import datetime
-
+import bmemcached
 
 mc = bmemcached.Client((Config.config['memcached_host'],))
 
@@ -453,7 +453,10 @@ def update_time_indexer(user_id, input_img_time):
 #0831 yisa
 
 if __name__ == "__main__":
-    create_face_group('wang')
+    mc.set('test', [datetime.today()])
+    r = mc.get('test')
+    print(r)
+#     create_face_group('wang')
 #     print(pypinyin.slug((u'测试test')))
 #     image = {'tags': ['a','b'], 'image_name':'y.jpg'}
 #     update_user_photo_indexer('xxx', image)
