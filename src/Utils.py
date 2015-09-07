@@ -403,6 +403,8 @@ def get_image_by_time(user_id, time_list):
 def sort_image_by_time(img_list, time_ranges):
     # time_list: [(st, et), (st, et)]
     # img_list: [[t1, t2], [img1, img2]]
+    print('img_list:',img_list)
+    print('time_ranges',time_ranges)
     sort_img = []
     for time_range in time_ranges:
         for time in img_list[0]:
