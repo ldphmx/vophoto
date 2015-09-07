@@ -501,7 +501,9 @@ def parse_lunar_festival(date_str):
 def time_api(str,user_id):
     
     words = str.split(" ")
-    user_earliest_time = MongoHelper.get_earliest_date(user_id)
+    user_earliest_datetime = MongoHelper.get_earliest_date(user_id)
+    user_earliest_datetime_string = trans_datetime_to_string(user_earliest_datetime.year,user_earliest_datetime.month,user_earliest_datetime.day,user_earliest_datetime.hour,user_earliest_datetime.mintue,user_earliest_datetime.second)
+    user_earliest_datetime = datetime.datetime.strptime(user_earliest_datetime_string,'%Y-%m-%d %X %z')
     print(words)
     for word in words:
         if "_nt" in word:
