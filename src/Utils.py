@@ -1,18 +1,21 @@
 #Encoding=UTF8
 
-import Config
+from src import Config
 from hashlib import md5
 import os
-import MongoHelper
+from src import MongoHelper
 import pickle
 import pypinyin
 from pymemcache.client.base import Client
 from scipy import spatial
 import numpy as np
-import re
 import json
 import aiohttp
 import http.client
+from fuzzywuzzy import fuzz
+from datetime import datetime
+
+
 
 mc = Client((Config.config['memcached_host'], 11211))
 
@@ -28,7 +31,7 @@ def get_user_path(userId):
 def generate_access_token(userId):
     md5ins = md5()
     md5ins.update(userId.encode())
-    md5ins.update(Config.config['access_token'])
+    md5ins.update(Config.config['access_token'].encode())
     return md5ins.hexdigest()
 
 def get_meaningful_keywords(key_words):
@@ -40,7 +43,7 @@ def get_meaningful_keywords(key_words):
         
         if pair[1] in Config.config['meaningful_pos']:
             keys.append(pypinyin.slug(pair[0]))
-    return 
+    return keys
 
 def get_object_keywords(key_words):
     keys = []
@@ -62,7 +65,10 @@ def get_location_from_rawlocation(key_location):
         
 def get_tag_from_rawlocation(key_location):
     tags = key_location[2:]
-    return tags
+    tagpy = []
+    for item in tags:
+        tagpy.append(pypinyin.slug(item))
+    return tagpy
 ##added by peigang
 
 def get_user_photo_location_indexer(user_id):
@@ -159,12 +165,13 @@ def create_face_group(user_id):
         'Ocp-Apim-Subscription-Key': Config.config['face_api_key'],
     }
     
-    body = {'name': user_id}
+    body = {'name': user_id.lower()}
     
     try:
         conn = http.client.HTTPSConnection("api.projectoxford.ai")
-        conn.request("PUT", "/asia/face/v0/facegroups/%s" % user_id, body=json.dumps(body), headers=headers)
+        conn.request("PUT", "/asia/face/v0/facegroups/%s" % user_id.lower(), body=json.dumps(body), headers=headers)
         response = conn.getresponse()
+        data = response.read()
         res = response.status == 200
         conn.close()
     except Exception as e:
@@ -286,50 +293,60 @@ def get_images_by_tag(user_id, input_tags,t):
     image_final = []
     search_tags = list(set(input_tags))
     user_img = MongoHelper.get_images_by_user(user_id)
+    print('user_img:',user_img)
     for img in user_img:
         pattern_tags = list(set(img['tags']))
         count = fuzz.ratio(search_tags, pattern_tags)
-        image_unsort.append((img,count))
-    image_sort = sorted(image_unsort,key = lambda x:x[1],reverse= True)         
+        image_unsort.append((img,count))   
+    image_sort = sorted(image_unsort,key = lambda x:x[1],reverse= True)
+    print('image_sort:',image_sort)         
     if t == 1:
-        n = 0
+        n = -1
         for i in range(len(image_sort)):
             j = i-1
             if i == 0 or image_sort[i][1] != image_sort[j][1]:
-                image_final[n] = []
                 n += 1
+                item = []
+                item.append(image_sort[i][0])
+                image_final.append(item)
+                print('image_final:',image_final)
+            else:
                 image_final[n].append(image_sort[i][0])
         return image_final
     elif t == 0:
-        for item in image_unsort:
+        for item in image_sort:
             image_final.append(item[0]['image_name'])
         return image_final
 
 ##0831##
 def get_images_by_tag_from_Timage(user_id,input_tags,Timage,t):
     image_unsort = []
-    image_final = []
+    image_final = [[]]
     search_tags = list(set(input_tags))
     user_img = MongoHelper.get_images_by_user_and_imagename(user_id,Timage)
     for img in user_img:
         pattern_tags = list(set(img['tags']))
         count = fuzz.ratio(search_tags, pattern_tags)
-        image_unsort.append((img,count))   
+        image_unsort.append((img,count))
     image_sort = sorted(image_unsort,key = lambda x:x[1],reverse= True)         
     if t == 1:
-        n = 0
+        n = -1
         for i in range(len(image_sort)):
             j = i-1
             if i == 0 or image_sort[i][1] != image_sort[j][1]:
-                image_final[n] = []
                 n += 1
+                item = []
+                item.append(image_sort[i][0])
+                image_final.append(item)
+                print('image_final:',image_final)
+            else:
                 image_final[n].append(image_sort[i][0])
         return image_final
     elif t == 0:
-        for item in image_unsort:
+        for item in image_sort:
             image_final.append(item[0]['image_name'])
         return image_final
-
+    
 def update_facename_in_person_list(face_name):
     pass
 
@@ -368,12 +385,19 @@ def sort_by_closest_point(indexer, longitude, latitude):
     return sorted_images
 
 def get_image_by_time(user_id, time_list):
-    filename = 'time_indexer.dat'    # modify later when md5str available
-    if not os.path.exists(filename):
-        time_indexer = {}
-    else:
-        with open(filename,'rb') as fp:
-            time_indexer = pickle.load(fp)
+    filename = get_user_path(user_id) + "/" + "time_indexer.dat"
+#     filename = 'time_indexer.dat'    # modify later when md5str available
+    time_indexer = mc.get(user_id)
+    if not time_indexer:
+        if not os.path.exists(filename):
+            time_indexer = {}
+        else:
+            with open(filename,'rb') as fp:
+                time_indexer = pickle.load(fp)
+    if time_indexer is None:
+        return None
+    
+    mc.set(user_id, time_indexer)
     time_sorted_imgs = sort_image_by_time(time_indexer, time_list)
     return time_sorted_imgs
 
@@ -391,8 +415,8 @@ def sort_image_by_time(img_list, time_ranges):
     
 def update_time_indexer(user_id, input_img_time):
     indexer = mc.get(user_id + '_time')
-#     filename = get_user_path(user_id) + "/" + "time_indexer.dat"
-    filename = 'time_indexer.dat'
+    filename = get_user_path(user_id) + "/" + "time_indexer.dat"
+#     filename = 'time_indexer.dat'
      
     if not indexer:
         indexer = [[input_img_time['time']], [input_img_time['image_name']]]
@@ -400,7 +424,8 @@ def update_time_indexer(user_id, input_img_time):
     else:    
         with open(filename,'rb') as fp:
             indexer = pickle.load(fp)
-        # img_list: [[t1, t2], [img1, img2]]
+    
+    # img_list: [[t1, t2], [img1, img2]]
     imgs = []
     new_indexer = [[], []]
     i = 0

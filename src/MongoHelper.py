@@ -1,7 +1,8 @@
 #Encoding=UTF8
 
 import pymongo
-import Config
+from src import Config
+
 
 conn = pymongo.MongoClient(Config.config['mongo_url'])
 
@@ -29,33 +30,12 @@ def register_user(user):
     db = conn.VoiceImageDB
     coll = db.user_profile
     coll.insert_one(user)
-    
-# def get_server_users():
-#     db = conn.VoiceImageDB
-#     coll = db.server_usage
-#     doc = coll.find_one()
-#     if doc is None:
-#         servers = Config.config['servers']
-#         doc = {}
-#         for server in servers:
-#             doc[server['name']] = 0
-#         coll.insert_one(doc)
-        
-#     return doc
-
-# def increase_server_usage(server_name, count):
-#     db = conn.VoiceImageDB
-#     coll = db.server_usage
-#     doc = coll.find_one()
-#     if doc is not None:
-#         doc[server_name] = doc[server_name] + count
-#         coll.save(doc)
 
 def allocate_user_server():
     db = conn.VoiceImageDB
     coll = db.server_usage
     docs = coll.find()
-    if docs is None:
+    if docs.count() is 0:
         servers = Config.config['servers']
         for server in servers:
             server['count'] = 0
@@ -66,13 +46,14 @@ def allocate_user_server():
             return doc['name']
     return None
 
-def increase_server_usage(server_name, count):
+def increase_server_usage(server_name, num):
     db = conn.VoiceImageDB
     coll = db.server_usage
-    doc = coll.find_one({'name': server_name})
-    if doc is not None:
-        doc['count'] += count
-        coll.save(doc)
+    doc = coll.find({'name': server_name})
+    if doc.count() is not 0:
+        newCount = num + doc[0]['count']
+        serverID = doc[0]['_id']
+        coll.update_one({'_id': serverID}, {'$set': {'count': newCount}})
         
 def save_image(image):
     db = conn.VoiceImageDB
@@ -101,9 +82,16 @@ def extend_tags_in_existimage(user_id,image_name,tags):
     doc = coll.find_one({'user_id': user_id,'image_name':image_name})
     doc['tags'].extend(tags)
     coll.save(doc)
-
-###########added by yisha####################
-# search in db for img of input user_id
+    
+##0906    
+def update_image_desc_and_status(desc,userId,image_name):
+    db = conn.VoiceImageDB
+    coll = db.voice_images
+    doc = coll.find_one({'user_id': userId,'image_name':image_name})
+    doc['desc'].append(desc)
+    doc['processed'] = False
+    coll.save(doc)
+    
 def get_images_by_user(user_id):
     images = []
     db = conn.VoiceImageDB
@@ -210,7 +198,10 @@ def get_earliest_date(user_id):
 if __name__ == "__main__":
 #     print(get_similee_candidates_rec('wang', ['94c3aa36-90ba-47a0-af6c-c67fc2863be9']))
 #     print(get_similar_candidates_rec('wang', ['94c3aa36-90ba-47a0-af6c-c67fc2863be9']))
-    print(get_similar_persons('wang', [u'郭德纲']))
+#     print(get_similar_persons('wang', [u'郭德纲']))
+    print(allocate_user_server())
+    increase_server_usage('localhost', 1)
+    
     
     
     
