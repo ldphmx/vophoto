@@ -1,6 +1,6 @@
 #Encoding=UTF8
 
-import Config
+from src import Config
 from hashlib import md5
 import os
 from src import MongoHelper
