@@ -9,7 +9,7 @@ config = {
     'meaningful_pos':['ns','n','ni','nl','nz','nt','nh','r'],
     'human_name_pos':['nh','r'],
     'object_pos':['n'],
-    'memcached_host': 'memcached1',
+    'memcached_host': 'memcached1:11211',
     'face_api_key':'4e2bee77f4e74a5a89f725c44637b485',
     'supported_cv_tags': ['cat', 'dog', 'bird', 'fish']
 }
