@@ -61,7 +61,7 @@ class UploadHandler(BaseAuthenticateHandler.BaseAuthenticateHandler):
                 time = datetime.strptime(rowTime, '%Y-%m-%d %X %z')
                 
                 
-                key_location = rawLocation.split(',')               #add         
+                key_location = rawLocation.split(',')
                 print('key_location:',key_location)
                 raw_location_tag = []
                 if key_location is not None and len(key_location) != 0:
