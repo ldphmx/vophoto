@@ -2,6 +2,7 @@
 
 import pymongo
 from src import Config
+from datetime import datetime
 
 
 conn = pymongo.MongoClient(Config.config['mongo_url'])
@@ -189,11 +190,27 @@ def check_img_exist(user_id, input_img):
 Get earliest date for NLP time converter
 @return: datetime object
 '''
+# def get_earliest_date(user_id):
+#     db = conn.VoiceImageDB
+#     coll = db.voice_images
+#     print(coll.find({'user_id':user_id}))
+#     img = coll.find({'user_id':user_id}).sort({'time': 1})
+#       # sort img by ascending date
+#     return img[0]['time']
+
 def get_earliest_date(user_id):
-    db = conn.VoiceImageDB
-    coll = db.voice_images
-    img = coll.find({'user_id':user_id}).sort({'time': 1})  # sort img by ascending date
-    return img[0]['time']
+    if user_id is not None:
+        db = conn.VoiceImageDB
+        coll = db.voice_images
+        imgs = coll.find({'user_id':user_id})
+        imgs_unsort = []
+        for img in imgs:
+            imgs_unsort.append(img['time'])
+        imgs_sort = sorted(imgs_unsort)  # sort img by ascending date
+        return imgs_sort[0]
+    else:
+        return datetime(2014, 1, 1, 9, 30, 17, 171000) 
+
 
 if __name__ == "__main__":
 #     print(get_similee_candidates_rec('wang', ['94c3aa36-90ba-47a0-af6c-c67fc2863be9']))

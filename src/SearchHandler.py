@@ -65,7 +65,7 @@ class SearchHandler(BaseAuthenticateHandler.BaseAuthenticateHandler):
 #             Logger.debug('meaningful: ' + meaningful)
 
             
-            time_range = NLPTimeConvertor.time_api(rawTag)
+            time_range = NLPTimeConvertor.time_api(rawTag,user_id)
             print('time_range:',time_range)
             if time_range and rawLocation != '':
                 Timage = Utils.get_image_by_time(user_id, time_range)    
