@@ -429,10 +429,12 @@ def parse_nl_date(date_str):
         lunar_start = Lunardate.LunarDate(start_year, start_month, start_day).toSolarDate()
         lunar_end = Lunardate.LunarDate(end_year, end_month, end_day).toSolarDate()
         
-        start_date_string = trans_date_to_string(lunar_start.year, lunar_start.month, lunar_start.day)
-        end_date_string   = trans_date_to_string(lunar_end.year, lunar_end.month, lunar_end.day) 
-        start_time = datetime.datetime.strptime(start_date_string,'%Y-%m-%d %X %z')
-        end_time   = datetime.datetime.strptime(end_date_string,'%Y-%m-%d %X %z')   
+#         start_date_string = trans_date_to_string(lunar_start.year, lunar_start.month, lunar_start.day)
+#         end_date_string   = trans_date_to_string(lunar_end.year, lunar_end.month, lunar_end.day) 
+#         start_time = datetime.datetime.strptime(start_date_string,'%Y-%m-%d %X %z')
+#         end_time   = datetime.datetime.strptime(end_date_string,'%Y-%m-%d %X %z')   
+        start_time = datetime.datetime(lunar_start.year, lunar_start.month, lunar_start.day, 1, 1, 1, 171000)
+        end_time = datetime.datetime(lunar_end.year, lunar_end.month, lunar_end.day, 1, 1, 1, 171000)
           
         result.append((start_time,end_time))
         
@@ -444,19 +446,23 @@ def parse_nl_date(date_str):
                 end_year = end_year - 1
                 lunar_start = Lunardate.LunarDate(start_year, start_month, start_day).toSolarDate()
                 lunar_end = Lunardate.LunarDate(end_year, end_month, end_day).toSolarDate()
-                start_date_string = trans_date_to_string(lunar_start.year, lunar_start.month, lunar_start.day)
-                end_date_string   = trans_date_to_string(lunar_end.year, lunar_end.month, lunar_end.day) 
-                start_time = datetime.datetime.strptime(start_date_string,'%Y-%m-%d %X %z')
-                end_time   = datetime.datetime.strptime(end_date_string,'%Y-%m-%d %X %z')   
+#                 start_date_string = trans_date_to_string(lunar_start.year, lunar_start.month, lunar_start.day)
+#                 end_date_string   = trans_date_to_string(lunar_end.year, lunar_end.month, lunar_end.day) 
+#                 start_time = datetime.datetime.strptime(start_date_string,'%Y-%m-%d %X %z')
+#                 end_time   = datetime.datetime.strptime(end_date_string,'%Y-%m-%d %X %z')   
+                start_time = datetime.datetime(lunar_start.year, lunar_start.month, lunar_start.day, 1, 1, 1, 171000)
+                end_time = datetime.datetime(lunar_end.year, lunar_end.month, lunar_end.day, 1, 1, 1, 171000)
                 result.append((start_time,end_time))
         
         return result
     
-    start_date_string = trans_date_to_string(start_year, start_month, start_day)
-    end_date_string   = trans_date_to_string(end_year, end_month, end_day) 
-    
-    start_time = datetime.datetime.strptime(start_date_string,'%Y-%m-%d %X %z')
-    end_time   = datetime.datetime.strptime(end_date_string,'%Y-%m-%d %X %z')   
+#     start_date_string = trans_date_to_string(start_year, start_month, start_day)
+#     end_date_string   = trans_date_to_string(end_year, end_month, end_day) 
+#     
+#     start_time = datetime.datetime.strptime(start_date_string,'%Y-%m-%d %X %z')
+#     end_time   = datetime.datetime.strptime(end_date_string,'%Y-%m-%d %X %z')   
+    start_time = datetime.datetime(start_year, start_month, start_day, 1, 1, 1, 171000)
+    end_time = datetime.datetime(end_year, end_month, end_day, 1, 1, 1, 171000)
           
     result.append((start_time,end_time))
       
@@ -467,10 +473,12 @@ def parse_nl_date(date_str):
         while(start_year > user_earliest_year):
             start_year = start_year - 1
             end_year = end_year - 1
-            start_date_string = trans_date_to_string(start_year, start_month, start_day)
-            end_date_string   = trans_date_to_string(end_year, end_month, end_day)
-            start_time = datetime.datetime.strptime(start_date_string,'%Y-%m-%d %X %z')
-            end_time = datetime.datetime.strptime(end_date_string,'%Y-%m-%d %X %z')   
+#             start_date_string = trans_date_to_string(start_year, start_month, start_day)
+#             end_date_string   = trans_date_to_string(end_year, end_month, end_day)
+#             start_time = datetime.datetime.strptime(start_date_string,'%Y-%m-%d %X %z')
+#             end_time = datetime.datetime.strptime(end_date_string,'%Y-%m-%d %X %z')   
+            start_time = datetime.datetime(start_year, start_month, start_day, 1, 1, 1, 171000)
+            end_time = datetime.datetime(end_year, end_month, end_day, 1, 1, 1, 171000)
             result.append((start_time,end_time))
     
     return result
@@ -553,7 +561,7 @@ if __name__ == "__main__":
 #     print parse_nl_date([u'秋天'])
 #     print parse_nl_date([u'冬天'])
     
-    Logger.debug(time_api( "我_r 要_v 找_v 端午节_nt 在_p 微软_ni 附近_nd 拍_v 的_u 照片_n",None))
+    Logger.debug(time_api( "我_r 要_v 找_v 圣诞节_nt 在_p 微软_ni 附近_nd 拍_v 的_u 照片_n",None))
     #print (Lunardate.LunarDate(1998, 9, 4).toSolarDate())
     
     

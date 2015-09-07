@@ -6,7 +6,7 @@ import os
 from src import MongoHelper
 import pickle
 import pypinyin
-from pymemcache.client.base import Client
+import bmemcached
 from scipy import spatial
 import numpy as np
 import json
@@ -16,8 +16,7 @@ from fuzzywuzzy import fuzz
 from datetime import datetime
 
 
-
-mc = Client((Config.config['memcached_host'], 11211))
+mc = bmemcached.Client((Config.config['memcached_host'],))
 
 def get_user_path(userId):
     md5ins = md5()
@@ -385,19 +384,20 @@ def sort_by_closest_point(indexer, longitude, latitude):
     return sorted_images
 
 def get_image_by_time(user_id, time_list):
+    
     filename = get_user_path(user_id) + "/" + "time_indexer.dat"
-#     filename = 'time_indexer.dat'    # modify later when md5str available
     time_indexer = mc.get(user_id)
     if not time_indexer:
         if not os.path.exists(filename):
-            time_indexer = {}
+            time_indexer = []
         else:
             with open(filename,'rb') as fp:
                 time_indexer = pickle.load(fp)
+        mc.set(user_id, time_indexer)
+         
     if time_indexer is None:
         return None
-    
-    mc.set(user_id, time_indexer)
+
     time_sorted_imgs = sort_image_by_time(time_indexer, time_list)
     return time_sorted_imgs
 
@@ -411,12 +411,14 @@ def sort_image_by_time(img_list, time_ranges):
         for time in img_list[0]:
             if time > time_range[1]:
                 break
-            elif time > time_range[0]:
+            elif time >= time_range[0]:
                 sort_img.append(img_list[1][img_list[0].index(time)])
+    print('sorted img list: ')
+    print(sort_img)
     return sort_img
     
 def update_time_indexer(user_id, input_img_time):
-    indexer = mc.get(user_id + '_time')
+    indexer = mc.get(user_id)
     filename = get_user_path(user_id) + "/" + "time_indexer.dat"
 #     filename = 'time_indexer.dat'
      
