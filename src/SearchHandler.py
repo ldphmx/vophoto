@@ -27,6 +27,7 @@ class SearchHandler(BaseAuthenticateHandler.BaseAuthenticateHandler):
             print('user:',user)
             if token != user['token']:
                 self.write(json.dumps(result))
+                Logger.debug('token wrong')
                 return
         
             if user_id == '' or rawTag == '':
