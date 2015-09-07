@@ -22,6 +22,7 @@ class SearchHandler(BaseAuthenticateHandler.BaseAuthenticateHandler):
             rawLocation = self.get_argument('loc','')
             print('rawLocation:',rawLocation)
             token = self.get_argument('token','')
+            print('token:',token)
             user = MongoHelper.get_user_by_id(user_id)
             print('user:',user)
             if token != user['token']:

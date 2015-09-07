@@ -26,17 +26,22 @@ class UploadHandler(BaseAuthenticateHandler.BaseAuthenticateHandler):
             print('function:',function)
             user = MongoHelper.get_user_by_id(userId)
             if token != user['token']:      #add
+                Logger.debug('token wrong')
                 return
             ###for images that has uploaded:if this image was existed,then the customer just want to extend image-tags###
             if function == 'UPDATE':
                 print('rawTags:',rawTags)
                 print('userId:',userId)
                 print('image_name:',image_name)
+                if MongoHelper.check_img_exist(userId, image_name):
+                    return    
                 update_image_tag(rawTags,userId,image_name)
                 MongoHelper.update_image_desc_and_status(desc,userId,image_name)  
                 result['status'] = True
             
             elif function == 'UPLOAD':    ###for images that has not uploaded###    
+                if MongoHelper.check_img_exist(userId, image_name):
+                    return 
                 print('userId',userId)
                 print('rawTags',rawTags)
                 path = Utils.get_user_path(userId)    #error

@@ -10,7 +10,7 @@ from src import Config
 from src import Utils
 
 if __name__ == '__main__':
-    user_id = '001' #modify later for specific user
+    user_id = 'b42c916c-3b1e-4235-85b7-451aea401218' #modify later for specific user
     conn = pymongo.MongoClient(Config.config['mongo_url'])
     db = conn.VoiceImageDB
     coll = db.voice_images
