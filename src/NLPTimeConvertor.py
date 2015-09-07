@@ -8,6 +8,7 @@ import os
 import pickle
 from src import Logger
 from src import Lunardate
+from src import MongoHelper
 
 ############ abs
 # 2014年_nt 的_u 照片_n
@@ -496,9 +497,12 @@ def parse_festival(date_str):
 def parse_lunar_festival(date_str):
     return parse_date_item(date_str,lunar_festival_regex)
 
-def time_api(str):
+def time_api(str,user_id):
     
     words = str.split(" ")
+    user_earliest_date = MongoHelper.get_earliest_date(user_id)
+    user_earliest_date_string = trans_date_to_string(user_earliest_date.year,user_earliest_date.month,user_earliest_date.day)
+    user_earliest_time = datetime.datetime.strptime(user_earliest_date_string,'%Y-%m-%d %X %z')
     print(words)
     for word in words:
         if "_nt" in word:
