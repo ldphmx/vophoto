@@ -1,10 +1,10 @@
 
 
 import json
-from src import BaseAuthenticateHandler
-from src import Utils
-from src import MongoHelper
-from src import Logger
+import BaseAuthenticateHandler
+import Utils
+import MongoHelper
+import Logger
 from datetime import datetime
 import pypinyin
 

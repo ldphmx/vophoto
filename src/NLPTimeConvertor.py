@@ -273,8 +273,8 @@ def do_parse_newyeareve_day(regex,date_str):
     Logger.debug('do parse: ' + regex + " - " + date_str)
     return (12,30)#阴历
 
-#user_earliest_time = "2000-1-1 00:00:00 +0800"
-user_earliest_time = datetime.datetime.strptime("2010-1-1 00:00:00 +0800",'%Y-%m-%d %X %z')
+#user_earliest_datetime = "2000-1-1 00:00:00 +0800"
+user_earliest_datetime = None #datetime.datetime.strptime("2010-1-1 00:00:00 +0800",'%Y-%m-%d %X %z')
 
 year_regex = [(u'(\d+)年', do_parse_raw_year),
               (u'去年', do_parse_last_year),
@@ -349,6 +349,17 @@ def trans_date_to_string(year,month,day):
     
     date_string = year_string + '-' + month_string + '-' + day_string + ' 00:00:00 +0800'
     return date_string
+
+def trans_datetime_to_string(year,month,day,hour,minute,second):
+    year_string = str(year)
+    month_string = str(month)
+    day_string = str(day)
+    hour_string = str(hour)
+    minute_string = str(minute)
+    second_string = str(second)
+    
+    datetime_string = year_string + '-' + month_string + '-' + day_string + ' '+ hour_string + ':' + minute_string + ':' + second_string + ' +0800'
+    return datetime_string
 
 def parse_nl_date(date_str):   
     now = datetime.datetime.now()
@@ -426,8 +437,8 @@ def parse_nl_date(date_str):
         result.append((start_time,end_time))
         
         if not year_set:
-            user_earliest_time_str = user_earliest_time.__str__()
-            user_earliest_year = int(user_earliest_time_str[0:4])
+            user_earliest_datetime_str = user_earliest_datetime.__str__()
+            user_earliest_year = int(user_earliest_datetime_str[0:4])
             while(start_year > user_earliest_year):
                 start_year = start_year - 1
                 end_year = end_year - 1
@@ -451,8 +462,8 @@ def parse_nl_date(date_str):
       
     if not year_set and not islunar_set:
         #用户没有说明具体哪一年 需要从最新的一年开始一直到用户最早出现的一年的时间全部都返回
-        user_earliest_time_str = user_earliest_time.__str__()
-        user_earliest_year = int(user_earliest_time_str[0:4])
+        user_earliest_datetime_str = user_earliest_datetime.__str__()
+        user_earliest_year = int(user_earliest_datetime_str[0:4])
         while(start_year > user_earliest_year):
             start_year = start_year - 1
             end_year = end_year - 1
@@ -500,9 +511,10 @@ def parse_lunar_festival(date_str):
 def time_api(str,user_id):
     
     words = str.split(" ")
-    user_earliest_date = MongoHelper.get_earliest_date(user_id)
-    user_earliest_date_string = trans_date_to_string(user_earliest_date.year,user_earliest_date.month,user_earliest_date.day)
-    user_earliest_time = datetime.datetime.strptime(user_earliest_date_string,'%Y-%m-%d %X %z')
+    global user_earliest_datetime
+    user_earliest_datetime = MongoHelper.get_earliest_date(user_id)
+    user_earliest_datetime_string = trans_datetime_to_string(user_earliest_datetime.year,user_earliest_datetime.month,user_earliest_datetime.day,user_earliest_datetime.hour,user_earliest_datetime.minute,user_earliest_datetime.second)
+    user_earliest_datetime = datetime.datetime.strptime(user_earliest_datetime_string,'%Y-%m-%d %X %z')
     print(words)
     for word in words:
         if "_nt" in word:
@@ -541,7 +553,7 @@ if __name__ == "__main__":
 #     print parse_nl_date([u'秋天'])
 #     print parse_nl_date([u'冬天'])
     
-    Logger.debug(time_api( "我_r 要_v 找_v 端午节_nt 在_p 微软_ni 附近_nd 拍_v 的_u 照片_n"))
+    Logger.debug(time_api( "我_r 要_v 找_v 端午节_nt 在_p 微软_ni 附近_nd 拍_v 的_u 照片_n",None))
     #print (Lunardate.LunarDate(1998, 9, 4).toSolarDate())
     
     
