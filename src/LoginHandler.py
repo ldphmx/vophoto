@@ -1,9 +1,9 @@
 #Encoding=UTF8
 
 import tornado.web
-import MongoHelper
+from src import MongoHelper
 import json
-import Utils
+from src import Utils
 from src import Logger
 
 class LoginHandler(tornado.web.RequestHandler):
