@@ -2,7 +2,7 @@
 
 import pymongo
 import Config
-from datashape.coretypes import Null
+
 
 conn = pymongo.MongoClient(Config.config['mongo_url'])
 

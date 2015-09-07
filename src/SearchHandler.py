@@ -61,7 +61,7 @@ class SearchHandler(BaseAuthenticateHandler.BaseAuthenticateHandler):
             if cv_tags:
                 meaningful.extend(cv_tags)
                 print('meaningful_add_cv_tag:',meaningful)
-            Logger.debug('meaningful: ' + meaningful)
+#             Logger.debug('meaningful: ' + meaningful)
 
             
             time_range = NLPTimeConvertor.time_api(rawTag)
