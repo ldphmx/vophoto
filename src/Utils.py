@@ -15,6 +15,8 @@ import http.client
 from fuzzywuzzy import fuzz
 from datetime import datetime
 import Logger
+from itertools import combinations
+import time
 
 mc = bmemcached.Client((Config.config['memcached_host'],))
 
@@ -47,6 +49,35 @@ def get_similar_tags(user_id,tag_list):
         
         
         
+
+def update_image_indexer(user_id, img):
+    filename = get_user_path(user_id) + "/" + "image_indexer.dat"
+    indexer = mc.get(user_id + "_image")
+    if not indexer:
+        if not os.path.exists(filename):
+            indexer = {}
+        else:
+            with open(filename,'rb') as fp:
+                indexer = pickle.load(fp)
+    
+    if indexer is None:
+        return
+    
+    for tag in img['tags']:
+        if indexer[0].count(tag) is 0:
+            indexer[0].append(tag)
+            indexer[1].append([img['image_name']])
+        else:
+            tag_index = indexer[0].index(tag)
+            indexer[1][tag_index].append(img['image_name'])
+    
+    with open(filename,'wb') as fp:
+        pickle.dump(indexer,fp)
+    
+    mc.set(user_id + "_image", indexer)
+    Logger.debug('image indexer updated: ' + str(indexer))
+
+>>>>>>> 63f8cec88e55ec132ec3c3841d40df1848db707e
 def get_user_path(userId):
     md5ins = md5()
     md5ins.update(userId.encode())
@@ -62,6 +93,55 @@ def generate_access_token(userId):
     md5ins.update(Config.config['access_token'].encode())
     return md5ins.hexdigest()
 
+def get_images_by_tags_array(tags_list):
+    start = time.time()
+    image_res = []
+    for tags in tags_list:
+        img_list = get_image_by_tags(tags)
+        image_res.append(set(img_list))
+    
+    inter_sec = []
+    if len(image_res) > 1:
+        for i in range(1, len(image_res) + 1):
+            inter = []
+            for i in combinations(image_res, i):
+                res = set.intersection(*i)
+                inter.append(res)
+                
+            inter_sec.append(inter)
+    
+    final_list = []
+    inter_sec.reverse()
+    for i in inter_sec:
+        for s in i:
+            for t in s:
+                if not t in final_list:
+                    final_list.append(t)
+            
+    end = time.time() - start
+    print(end)
+    return final_list
+    
+
+def get_image_by_tags(tags):
+    list = []
+    indexer = get_image_indexer()
+    for tag in tags:
+        if tag in indexer.keys():
+            items = indexer[tag]
+            for item in items:
+                if not item in list:
+                    list.append(item)
+            
+    return list
+
+def get_image_indexer():
+    return {'tag1':['img1', 'img2', 'img3'],
+            'tag2':['img4', 'img3'],
+            'tag3':['img2'],
+            'tag4':['img3', 'img5']
+            }
+    
 def get_meaningful_keywords(key_words):
     keys = []
     for k in key_words:
@@ -123,7 +203,7 @@ def get_user_photo_indexer(user_id):
         with open(filename,'rb') as fp:
             indexer = pickle.load(fp)
         
-    mc.set(user_id, indexer)
+    mc.set(user_id + "_location", indexer)
     return indexer
     
 def update_user_photo_indexer(user_id, image):
@@ -348,12 +428,13 @@ def get_images_by_tag(user_id, input_tags,t):
 def get_images_by_tag_from_Timage(user_id,input_tags,Timage,t):
     image_unsort = []
     image_final = [[]]
+    image_final2 = []
     search_tags = list(set(input_tags))
     user_img = MongoHelper.get_images_by_user_and_imagename(user_id,Timage)
     for img in user_img:
         pattern_tags = list(set(img['tags']))
         count = fuzz.ratio(search_tags, pattern_tags)
-        image_unsort.append((img,count))
+        image_unsort.append((img, count))
     image_sort = sorted(image_unsort,key = lambda x:x[1],reverse= True)         
     if t == 1:
         n = -1
@@ -367,7 +448,7 @@ def get_images_by_tag_from_Timage(user_id,input_tags,Timage,t):
                 print('image_final:',image_final)
             else:
                 image_final[n].append(image_sort[i][0])
-        return image_final
+        return image_final2
     elif t == 0:
         for item in image_sort:
             image_final.append(item[0]['image_name'])
@@ -413,14 +494,14 @@ def sort_by_closest_point(indexer, longitude, latitude):
 def get_image_by_time(user_id, time_list):
     
     filename = get_user_path(user_id) + "/" + "time_indexer.dat"
-    time_indexer = mc.get(user_id)
+    time_indexer = mc.get(user_id + "_time")
     if not time_indexer:
         if not os.path.exists(filename):
             time_indexer = []
         else:
             with open(filename,'rb') as fp:
                 time_indexer = pickle.load(fp)
-        mc.set(user_id, time_indexer)
+        mc.set(user_id + "_time", time_indexer)
          
     if time_indexer is None:
         return None
@@ -445,13 +526,13 @@ def sort_image_by_time(img_list, time_ranges):
     return sort_img
     
 def update_time_indexer(user_id, input_img_time):
-    indexer = mc.get(user_id)
+    indexer = mc.get(user_id + "_time")
     filename = get_user_path(user_id) + "/" + "time_indexer.dat"
 #     filename = 'time_indexer.dat'
      
     if not indexer:
         indexer = [[input_img_time['time']], [input_img_time['image_name']]]
-        mc.set(user_id, indexer)
+        mc.set(user_id + "_time", indexer)
     else:    
         with open(filename,'rb') as fp:
             indexer = pickle.load(fp)
@@ -470,20 +551,20 @@ def update_time_indexer(user_id, input_img_time):
     for img in image_sort:
         new_indexer[0].append(img['time'])
         new_indexer[1].append(img['image_name'])
-    mc.set(user_id, new_indexer)
+    mc.set(user_id + "_time", new_indexer)
     
     with open(filename, 'wb') as fp:
         pickle.dump(new_indexer,fp)
         
-    print(new_indexer)
+    Logger.debug('time indexer updated:' + str(new_indexer))
 
 #0831 yisa
 
 if __name__ == "__main__":
-  
-    mc.set('test', [datetime.today()])
-    r = mc.get('test')
-    print(r)
+
+
+    print(get_images_by_tags_array([['tag1'], ['tag2']]))
+
 #     create_face_group('wang')
 #     print(pypinyin.slug((u'测试test')))
 #     image = {'tags': ['a','b'], 'image_name':'y.jpg'}

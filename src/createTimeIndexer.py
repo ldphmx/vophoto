@@ -19,34 +19,63 @@ if __name__ == '__main__':
     coll = db.voice_images
     docs = coll.find()
     
-    indexer = [[], []]
+    time_indexer = [[], []]
     imgs = []
     
     for doc in docs:
-#         indexer[0].append(doc['time'])
-#         indexer[1].append(doc['image_name'])
         imgs.append(doc)
         
-    sorted_indexer = sorted(imgs, key=lambda img: img['time'])
+    sorted_time_indexer = sorted(imgs, key=lambda img: img['time'])
     
-    for index in sorted_indexer:
-        indexer[0].append(index['time'])
-        indexer[1].append(index['image_name'])
+    for time_index in sorted_time_indexer:
+        time_indexer[0].append(time_index['time'])
+        time_indexer[1].append(time_index['image_name'])
         
     filename = Utils.get_user_path(user_id) + "/" + "time_indexer.dat"
-    if not os.path.isfile(filename):
+    if os.path.isfile(filename):
         os.remove(filename)
      
     with open(filename,'wb') as fp:
-        pickle.dump(indexer,fp)
+        pickle.dump(time_indexer,fp)
     fp.close()
          
     with open(filename,'rb') as fp:
-            indexer_read = pickle.load(fp)
+            time_indexer_read = pickle.load(fp)
     
-    mc.set(user_id, indexer_read)
+    mc.set(user_id, time_indexer_read)
     fp.close()
     
-    print(indexer_read[0])
-    print(indexer_read[1])
-    print(len(indexer_read[1]))
+    print(time_indexer_read[0])
+    print(time_indexer_read[1])
+    print(len(time_indexer_read[1]))
+    
+    ##################################### IMG INDEX ###########
+    img_indexer = [[], []]
+    docs = coll.find()
+    for doc in docs:
+        for tag in doc['tags']:
+            if img_indexer[0].count(tag) is 0:
+                img_indexer[0].append(tag)
+                img_indexer[1].append([doc['image_name']])
+            else:
+                tag_index = img_indexer[0].index(tag)
+                img_indexer[1][tag_index].append(doc['image_name'])
+        
+    filename = Utils.get_user_path(user_id) + "/" + "image_indexer.dat"
+    if os.path.isfile(filename):
+        os.remove(filename)
+     
+    with open(filename,'wb') as fp:
+        pickle.dump(img_indexer,fp)
+    fp.close()
+         
+    with open(filename,'rb') as fp:
+            img_indexer_read = pickle.load(fp)
+    
+    mc.set(user_id, img_indexer_read)
+    fp.close()
+    
+    print_index = 0
+    for index_tag in img_indexer_read[0]:
+        print(index_tag + ":" + str(img_indexer_read[1][print_index]))
+        print_index += 1

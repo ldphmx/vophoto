@@ -82,6 +82,7 @@ class UploadHandler(BaseAuthenticateHandler.BaseAuthenticateHandler):
                 image = {'user_id': userId, 'image_name': fname, 'location':location, 'desc': desc, 'tags': tags, 'time':time, 'processed': False}
                 MongoHelper.save_image(image)
                 Utils.update_time_indexer(userId,image)
+                Utils.update_image_indexer(userId, image)
 #                 face_name = Utils.get_human_names(rawTags)
 #                 MongoHelper.update_person_list(userId,face_name)        ##此函数未写
                 result['status'] = True
