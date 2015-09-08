@@ -15,6 +15,8 @@ import http.client
 from fuzzywuzzy import fuzz
 from datetime import datetime
 import bmemcached
+from itertools import combinations
+import time
 
 mc = bmemcached.Client((Config.config['memcached_host'],))
 
@@ -33,6 +35,55 @@ def generate_access_token(userId):
     md5ins.update(Config.config['access_token'].encode())
     return md5ins.hexdigest()
 
+def get_images_by_tags_array(tags_list):
+    start = time.time()
+    image_res = []
+    for tags in tags_list:
+        img_list = get_image_by_tags(tags)
+        image_res.append(set(img_list))
+    
+    inter_sec = []
+    if len(image_res) > 1:
+        for i in range(1, len(image_res) + 1):
+            inter = []
+            for i in combinations(image_res, i):
+                res = set.intersection(*i)
+                inter.append(res)
+                
+            inter_sec.append(inter)
+    
+    final_list = []
+    inter_sec.reverse()
+    for i in inter_sec:
+        for s in i:
+            for t in s:
+                if not t in final_list:
+                    final_list.append(t)
+            
+    end = time.time() - start
+    print(end)
+    return final_list
+    
+
+def get_image_by_tags(tags):
+    list = []
+    indexer = get_image_indexer()
+    for tag in tags:
+        if tag in indexer.keys():
+            items = indexer[tag]
+            for item in items:
+                if not item in list:
+                    list.append(item)
+            
+    return list
+
+def get_image_indexer():
+    return {'tag1':['img1', 'img2', 'img3'],
+            'tag2':['img4', 'img3'],
+            'tag3':['img2'],
+            'tag4':['img3', 'img5']
+            }
+    
 def get_meaningful_keywords(key_words):
     keys = []
     for k in key_words:
@@ -450,9 +501,7 @@ def update_time_indexer(user_id, input_img_time):
 #0831 yisa
 
 if __name__ == "__main__":
-    mc.set('test', [datetime.today()])
-    r = mc.get('test')
-    print(r)
+    print(get_images_by_tags_array([['tag1'], ['tag2']]))
 #     create_face_group('wang')
 #     print(pypinyin.slug((u'测试test')))
 #     image = {'tags': ['a','b'], 'image_name':'y.jpg'}
