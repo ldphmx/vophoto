@@ -80,3 +80,26 @@ if __name__ == '__main__':
     for index_tag in img_indexer_read[0]:
         print(index_tag + ":" + str(img_indexer_read[1][print_index]))
         print_index += 1
+
+####################### LOCATION INDEX #############################
+    loc_indexer = [[], []]
+    docs = coll.find()
+    for doc in docs:
+        loc_indexer[0].append([doc['location']['longitude'], doc['location']['latitude']])
+        loc_indexer[1].append(doc['image_name'])
+        
+    filename = Utils.get_user_path(user_id) + "/" + "location_indexer.dat"
+    if os.path.isfile(filename):
+        os.remove(filename)
+     
+    with open(filename,'wb') as fp:
+        pickle.dump(loc_indexer,fp)
+    fp.close()
+         
+    with open(filename,'rb') as fp:
+            loc_indexer_read = pickle.load(fp)
+    
+    mc.set(user_id + "_location", loc_indexer_read)
+    fp.close()
+
+    print(loc_indexer_read)
