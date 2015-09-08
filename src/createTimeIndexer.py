@@ -6,8 +6,8 @@ Created on Sep 7, 2015
 import pickle
 import pymongo
 import os.path
-from src import Config
-from src import Utils
+import Config
+import Utils
 import bmemcached
 
 mc = bmemcached.Client((Config.config['memcached_host'],))

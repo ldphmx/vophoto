@@ -1,12 +1,12 @@
 #Encoding=UTF8
 
 import tornado.web
-from src import Logger
-from src import MongoHelper
+import Logger
+import MongoHelper
 import json
-from src import Utils
-from src import BaseAuthenticateHandler
-from src import NLPTimeConvertor
+import Utils
+import BaseAuthenticateHandler
+import NLPTimeConvertor
 
 class SearchHandler(BaseAuthenticateHandler.BaseAuthenticateHandler):
     def post(self):
@@ -54,7 +54,9 @@ class SearchHandler(BaseAuthenticateHandler.BaseAuthenticateHandler):
                 print('meaningful_add_rawlocation_tag::',meaningful)
             
             face_name = Utils.get_human_names(rawTag)
+            print('face_name:',face_name)
             face_id = list(MongoHelper.get_similar_persons(user_id,face_name))  
+            print('face_id:',face_id)
             if face_id :
                 meaningful.extend(face_id)
                 print('meaningful_add_face_id:',meaningful)

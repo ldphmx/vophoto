@@ -3,8 +3,8 @@
 import tornado.web
 from src import MongoHelper
 import json
-from src import Utils
-from src import Logger
+import Utils
+import Logger
 
 class LoginHandler(tornado.web.RequestHandler):
     def post(self):

@@ -1,9 +1,9 @@
 #Encoding=UTF8
 
-from src import Config
+import Config
 from hashlib import md5
 import os
-from src import MongoHelper
+import MongoHelper
 import pickle
 import pypinyin
 import bmemcached
