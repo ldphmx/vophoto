@@ -96,8 +96,8 @@ def get_image_by_tags(tags):
     list = []
     indexer = get_image_indexer()
     for tag in tags:
-        if tag in indexer.keys():
-            items = indexer[tag]
+        if indexer[0].count(tag) > 0:
+            items = indexer[1][indexer[0].index(tag)]
             for item in items:
                 if not item in list:
                     list.append(item)
@@ -105,11 +105,12 @@ def get_image_by_tags(tags):
     return list
 
 def get_image_indexer():
-    return {'tag1':['img1', 'img2', 'img3'],
-            'tag2':['img4', 'img3'],
-            'tag3':['img2'],
-            'tag4':['img3', 'img5']
-            }
+    return [['tag1', 'tag2', 'tag3'], [['img1','img2'], ['img3', 'img4'], ['img2']]]
+#     return {'tag1':['img1', 'img2', 'img3'],
+#             'tag2':['img4', 'img3'],
+#             'tag3':['img2'],
+#             'tag4':['img3', 'img5']
+#             }
     
 def get_meaningful_keywords(key_words):
     keys = []

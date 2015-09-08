@@ -76,6 +76,7 @@ if __name__ == '__main__':
     fp.close()
     
     print_index = 0
+    print(img_indexer_read)
     for index_tag in img_indexer_read[0]:
         print(index_tag + ":" + str(img_indexer_read[1][print_index]))
         print_index += 1
