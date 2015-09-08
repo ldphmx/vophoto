@@ -1,12 +1,12 @@
 #Encoding=UTF8
 
-from src import Config
+import Config
 from hashlib import md5
 import os
-from src import MongoHelper
+import MongoHelper
 import pickle
 import pypinyin
-from pymemcache.client.base import Client
+import bmemcached
 from scipy import spatial
 import numpy as np
 import json
@@ -14,11 +14,39 @@ import aiohttp
 import http.client
 from fuzzywuzzy import fuzz
 from datetime import datetime
-import bmemcached
+import Logger
 from itertools import combinations
 import time
 
 mc = bmemcached.Client((Config.config['memcached_host'],))
+
+def update_image_indexer(user_id, images):
+    filename = get_user_path(user_id) + "/" + "image_indexer.dat"
+    indexer = mc.get(user_id + "_image")
+    if not indexer:
+        if not os.path.exists(filename):
+            indexer = {}
+        else:
+            with open(filename,'rb') as fp:
+                indexer = pickle.load(fp)
+    
+    if indexer is None:
+        return
+    
+    for img in images:
+        for tag in img['tags']:
+            if indexer[0].count(tag) is 0:
+                indexer[0].append(tag)
+                indexer[1].append([img['image_name']])
+            else:
+                tag_index = indexer[0].index(tag)
+                indexer[1][tag_index].append(img['image_name'])
+    
+    with open(filename,'wb') as fp:
+        pickle.dump(indexer,fp)
+    
+    mc.set(user_id + "_image", indexer)
+    Logger.debug('image indexer updated: ' + str(indexer))
 
 def get_user_path(userId):
     md5ins = md5()
@@ -145,7 +173,7 @@ def get_user_photo_indexer(user_id):
         with open(filename,'rb') as fp:
             indexer = pickle.load(fp)
         
-    mc.set(user_id, indexer)
+    mc.set(user_id + "_location", indexer)
     return indexer
     
 def update_user_photo_indexer(user_id, image):
@@ -372,12 +400,13 @@ def get_images_by_tag(user_id, input_tags,t):
 def get_images_by_tag_from_Timage(user_id,input_tags,Timage,t):
     image_unsort = []
     image_final = [[]]
+    image_final2 = []
     search_tags = list(set(input_tags))
     user_img = MongoHelper.get_images_by_user_and_imagename(user_id,Timage)
     for img in user_img:
         pattern_tags = list(set(img['tags']))
         count = fuzz.ratio(search_tags, pattern_tags)
-        image_unsort.append((img,count))
+        image_unsort.append((img, count))
     image_sort = sorted(image_unsort,key = lambda x:x[1],reverse= True)         
     if t == 1:
         n = -1
@@ -391,7 +420,7 @@ def get_images_by_tag_from_Timage(user_id,input_tags,Timage,t):
                 print('image_final:',image_final)
             else:
                 image_final[n].append(image_sort[i][0])
-        return image_final
+        return image_final2
     elif t == 0:
         for item in image_sort:
             image_final.append(item[0]['image_name'])
@@ -435,19 +464,20 @@ def sort_by_closest_point(indexer, longitude, latitude):
     return sorted_images
 
 def get_image_by_time(user_id, time_list):
+    
     filename = get_user_path(user_id) + "/" + "time_indexer.dat"
-#     filename = 'time_indexer.dat'    # modify later when md5str available
-    time_indexer = mc.get(user_id)
+    time_indexer = mc.get(user_id + "_time")
     if not time_indexer:
         if not os.path.exists(filename):
-            time_indexer = {}
+            time_indexer = []
         else:
             with open(filename,'rb') as fp:
                 time_indexer = pickle.load(fp)
+        mc.set(user_id + "_time", time_indexer)
+         
     if time_indexer is None:
         return None
-    
-    mc.set(user_id, time_indexer)
+
     time_sorted_imgs = sort_image_by_time(time_indexer, time_list)
     return time_sorted_imgs
 
@@ -461,18 +491,20 @@ def sort_image_by_time(img_list, time_ranges):
         for time in img_list[0]:
             if time > time_range[1]:
                 break
-            elif time > time_range[0]:
+            elif time >= time_range[0]:
                 sort_img.append(img_list[1][img_list[0].index(time)])
+    print('sorted img list: ')
+    print(sort_img)
     return sort_img
     
 def update_time_indexer(user_id, input_img_time):
-    indexer = mc.get(user_id + '_time')
+    indexer = mc.get(user_id + "_time")
     filename = get_user_path(user_id) + "/" + "time_indexer.dat"
 #     filename = 'time_indexer.dat'
      
     if not indexer:
         indexer = [[input_img_time['time']], [input_img_time['image_name']]]
-        mc.set(user_id, indexer)
+        mc.set(user_id + "_time", indexer)
     else:    
         with open(filename,'rb') as fp:
             indexer = pickle.load(fp)
@@ -491,12 +523,12 @@ def update_time_indexer(user_id, input_img_time):
     for img in image_sort:
         new_indexer[0].append(img['time'])
         new_indexer[1].append(img['image_name'])
-    mc.set(user_id, new_indexer)
+    mc.set(user_id + "_time", new_indexer)
     
     with open(filename, 'wb') as fp:
         pickle.dump(new_indexer,fp)
         
-    print(new_indexer)
+    Logger.debug('time indexer updated:' + str(new_indexer))
 
 #0831 yisa
 

@@ -1,12 +1,27 @@
 conn = new Mongo()
 db = conn.getDB("VoiceImageDB");
-user_id = "127f46fc-f21e-4911-a734-be4abfa8b318"
+
+var ex = "IMG_"
+var suffix = ".JPG"
+var user_id = "b42c916c-3b1e-4235-85b7-451aea401218"   //need modified
+
+function imageName(startNum, length) {
+	result = []
+	for(i = 0; i < LJZlength; i++){
+		var num = startNum + i;
+		var s = "000" + num;
+		var item = ex + s.substr(s.length-4, s.length-1) + suffix;
+		result.push(item);
+    }
+    return result;
+}
 
 //Lu jia zui
-var LJZname = ["IMG_1356.JPG", "IMG_1357.JPG","IMG_1358.JPG","IMG_1359.JPG","IMG_1360.JPG","IMG_1361.JPG","IMG_1362.JPG","IMG_1363.JPG","IMG_1364.JPG","IMG_1365.JPG","IMG_1366.JPG"]
-var startNum = 0;
+var LJZbegin = 1   //need modified
+var LJZlength = 10   //need modified
+var LJZname = imageName(LJZbegin, LJZlength);
 var LJZLocation = [31.237185, 121.525490]
-var temp = 10;
+var temp = 10
 for(i = 0; i < LJZname.length; i++) {
 	if(!db.voice_images.findOne({"image_name": LJZname[i]})) {
 		var dateStr = "2014-02-" + temp + "T09:05:17.171Z"
@@ -18,9 +33,11 @@ for(i = 0; i < LJZname.length; i++) {
 }
 
 //Tian an men
-var TAMname = ["IMG_1338.JPG", "IMG_1339.JPG","IMG_1340.JPG","IMG_1341.JPG","IMG_1342.JPG","IMG_1343.JPG","IMG_1344.JPG","IMG_1345.JPG","IMG_1346.JPG"]
+var TAMbegin = 1   //need modified
+var TAMlength = 10   //need modified
+var TAMname = imageName(TAMbegin, TAMlength);
+temp = 10;
 var TAMLocation = [39.908722, 116.397499]
-temp = 10
 for(i = 0; i < TAMname.length; i++) {
 	if(!db.voice_images.findOne({"image_name": TAMname[i]})) {
 		var dateStr = "2014-03-" + temp + "T09:05:17.171Z"
@@ -32,9 +49,11 @@ for(i = 0; i < TAMname.length; i++) {
 }
 
 //Bing ma yong
-var BMYname = ["IMG_1367.JPG", "IMG_1368.JPG","IMG_1369.JPG","IMG_1370.JPG","IMG_1371.JPG","IMG_1372.JPG","IMG_1373.JPG","IMG_1374.JPG","IMG_1375.JPG","IMG_1376.JPG","IMG_1377.JPG","IMG_1378.JPG","IMG_1379.JPG"]
+var BMYbegin = 50   //need modified
+var BMYlength = 10  //need modified
+var BMYname = imageName(BMYbegin, BMYlength)
+temp = 10
 var BMYLocation = [34.263161, 108.948021]
-temp = 10;
 for(i = 0; i < BMYname.length; i++) {
 	if(!db.voice_images.findOne({image_name: BMYname[i]})) {
 		var dateStr = "2014-01-" + temp + "T09:05:17.171Z"
@@ -46,9 +65,11 @@ for(i = 0; i < BMYname.length; i++) {
 }
 
 //Spring festival
-var SFname = ["IMG_1347.JPG", "IMG_1348.JPG","IMG_1349.JPG","IMG_1350.JPG","IMG_1351.JPG","IMG_1352.JPG","IMG_1353.JPG","IMG_1354.JPG","IMG_1355.JPG"]
-var SFLocation = [30.123456, 120.789456]
+var SFbegin = 100   //need modified
+var SFlength = 10   //need modified
+var SFname = imageName(SFbegin, SFlength)
 temp = 10;
+var SFLocation = [30.123456, 120.789456]
 for(i = 0; i < SFname.length; i++) {
 	if(!db.voice_images.findOne({image_name: SFname[i]})) {
 		var dateStr = "2015-02-19T09:" + temp +":17.171Z"
@@ -60,9 +81,11 @@ for(i = 0; i < SFname.length; i++) {
 }
 
 //Summer
-var SMname = ["IMG_1330.JPG", "IMG_1331.JPG","IMG_1332.JPG","IMG_1333.JPG","IMG_1334.JPG","IMG_1335.JPG","IMG_1336.JPG"]
-var SMLocation = [38.456123, 115.456123]
+var SMbegin = 111   //need modified
+var SMlength = 10   //need modified
+var SMname = imageName(SMbegin, SMlength)
 temp = 10;
+var SMLocation = [38.456123, 115.456123]
 for(i = 0; i < SMname.length; i++) {
 	if(!db.voice_images.findOne({image_name: SMname[i]})) {
 		var dateStr = "2014-06-" + temp + "T09:05:17.171Z"

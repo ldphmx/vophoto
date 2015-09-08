@@ -1,7 +1,7 @@
 #Encoding=UTF8
 
 import pymongo
-from src import Config
+import Config
 from datetime import datetime
 
 
@@ -106,8 +106,12 @@ def get_images_by_user(user_id):
 def get_images_by_user_and_imagename(user_id,Timage):
     images = []
     db = conn.VoiceImageDB
-    coll = db.voice_image
-    user_img = coll.find({'user_id':user_id,'image_name':{"$in":Timage}})
+    coll = db.voice_images
+    user_img = coll.find({ '$and':
+                         [{'user_id': user_id},
+                          {'image_name':
+                           {"$in":Timage}}]
+                        })
     for img in user_img:
         images.append(img)
     return images    

@@ -63,7 +63,8 @@ class UploadHandler(BaseAuthenticateHandler.BaseAuthenticateHandler):
                     tags = Utils.get_meaningful_keywords(key_words)
                     print('tags:',tags)
             # split date and time
-                time = datetime.strptime(rowTime, '%Y-%m-%d %X %z')
+                temptime = datetime.strptime(rowTime, '%Y-%m-%d %X %z')
+                time = datetime(temptime.year, temptime.month, temptime.day, temptime.hour, temptime.minute, temptime.second, 17100)
                 
                 
                 key_location = rawLocation.split(',')

@@ -1,10 +1,10 @@
 #Encoding=UTF8
 
 import tornado.web
-from src import MongoHelper
+import MongoHelper
 import json
-from src import Logger
-from src import Utils
+import Logger
+import Utils
 
 class RegistryHandler(tornado.web.RequestHandler):
     def get(self):
@@ -18,6 +18,7 @@ class RegistryHandler(tornado.web.RequestHandler):
             user_name = self.get_argument('user_name', '').lower()
             password = self.get_argument('password', '')
             lang = self.get_argument('lang', 'zh-CN')
+            Logger.debug('user_id:' + user_id + ', user_name:' + user_name + ', password:' + password)
             if user_id == '' or user_name == '' or password == '':
                 self.write(json.dumps(result))
                 return
