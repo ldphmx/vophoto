@@ -20,7 +20,7 @@ import time
 
 mc = bmemcached.Client((Config.config['memcached_host'],))
 
-def update_image_indexer(user_id, images):
+def update_image_indexer(user_id, img):
     filename = get_user_path(user_id) + "/" + "image_indexer.dat"
     indexer = mc.get(user_id + "_image")
     if not indexer:
@@ -33,14 +33,13 @@ def update_image_indexer(user_id, images):
     if indexer is None:
         return
     
-    for img in images:
-        for tag in img['tags']:
-            if indexer[0].count(tag) is 0:
-                indexer[0].append(tag)
-                indexer[1].append([img['image_name']])
-            else:
-                tag_index = indexer[0].index(tag)
-                indexer[1][tag_index].append(img['image_name'])
+    for tag in img['tags']:
+        if indexer[0].count(tag) is 0:
+            indexer[0].append(tag)
+            indexer[1].append([img['image_name']])
+        else:
+            tag_index = indexer[0].index(tag)
+            indexer[1][tag_index].append(img['image_name'])
     
     with open(filename,'wb') as fp:
         pickle.dump(indexer,fp)
