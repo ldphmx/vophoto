@@ -14,11 +14,39 @@ import aiohttp
 import http.client
 from fuzzywuzzy import fuzz
 from datetime import datetime
-import bmemcached
 import Logger
 
 mc = bmemcached.Client((Config.config['memcached_host'],))
 
+def get_similar_tags(user_id,tag_list):
+    filename = get_user_path(user_id) + "/" + "image_indexer.dat"
+    tag_img = mc.get(user_id)
+    if not tag_img:
+        if not os.path.exists(filename):
+            tag_img = []
+        else:
+            with open(filename,'rb') as fp:
+                tag_img = pickle.load(fp)
+        mc.set(user_id, tag_img)    
+    if tag_img is None:
+        return None
+    
+    tag_final1 = []
+    tag_final2 = [] 
+    for i in tag_list:
+        tag_unsort = []
+        for j in tag_img[0]:
+            count = fuzz.ratio(i, j)
+            if count >= 80:
+                tag_unsort.append((j,count))
+        tag_sort = sorted(tag_unsort,key = lambda x:x[1],reverse= True)
+        for item in tag_sort:
+            tag_final1.append(item[0])
+        tag_final2.append(tag_final1)
+    return tag_final2                  
+        
+        
+        
 def get_user_path(userId):
     md5ins = md5()
     md5ins.update(userId.encode())
@@ -452,6 +480,7 @@ def update_time_indexer(user_id, input_img_time):
 #0831 yisa
 
 if __name__ == "__main__":
+  
     mc.set('test', [datetime.today()])
     r = mc.get('test')
     print(r)
