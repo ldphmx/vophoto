@@ -1,12 +1,12 @@
 #Encoding=UTF8
 
 import tornado.web
-from src import Logger
-from src import MongoHelper
+import Logger
+import MongoHelper
 import json
-from src import Utils
-from src import BaseAuthenticateHandler
-from src import NLPTimeConvertor
+import Utils
+import BaseAuthenticateHandler
+import NLPTimeConvertor
 
 class SearchHandler(BaseAuthenticateHandler.BaseAuthenticateHandler):
     def post(self):

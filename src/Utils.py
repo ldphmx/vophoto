@@ -1,9 +1,9 @@
 #Encoding=UTF8
 
-from src import Config
+import Config
 from hashlib import md5
 import os
-from src import MongoHelper
+import MongoHelper
 import pickle
 import pypinyin
 import bmemcached
@@ -15,6 +15,7 @@ import http.client
 from fuzzywuzzy import fuzz
 from datetime import datetime
 import bmemcached
+import Logger
 
 mc = bmemcached.Client((Config.config['memcached_host'],))
 
@@ -143,9 +144,7 @@ def translate_tags(tags):
     cv_tags = mc.get('cv_tags')
     if not cv_tags:
         cv_tags = load_cv_tags()
-        mc.set('cv_tags', json.dumps(cv_tags))
-    else:
-        cv_tags = json.loads(cv_tags.decode('utf-8'))
+        mc.set('cv_tags', cv_tags)
     
     ret = []
     pytags = [pypinyin.slug(w,separator='') for w in tags]
@@ -404,8 +403,8 @@ def get_image_by_time(user_id, time_list):
 def sort_image_by_time(img_list, time_ranges):
     # time_list: [(st, et), (st, et)]
     # img_list: [[t1, t2], [img1, img2]]
-    print('img_list:',img_list)
-    print('time_ranges',time_ranges)
+    Logger.debug('img_list:' + str(img_list))
+    Logger.debug('time_ranges' + str(time_ranges))
     sort_img = []
     for time_range in time_ranges:
         for time in img_list[0]:
@@ -413,8 +412,8 @@ def sort_image_by_time(img_list, time_ranges):
                 break
             elif time >= time_range[0]:
                 sort_img.append(img_list[1][img_list[0].index(time)])
-    print('sorted img list: ')
-    print(sort_img)
+    Logger.debug('sorted img list: ')
+    Logger.debug(sort_img)
     return sort_img
     
 def update_time_indexer(user_id, input_img_time):
