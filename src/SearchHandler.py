@@ -54,7 +54,9 @@ class SearchHandler(BaseAuthenticateHandler.BaseAuthenticateHandler):
                 print('meaningful_add_rawlocation_tag::',meaningful)
             
             face_name = Utils.get_human_names(rawTag)
+            print('face_name:',face_name)
             face_id = list(MongoHelper.get_similar_persons(user_id,face_name))  
+            print('face_id:',face_id)
             if face_id :
                 meaningful.extend(face_id)
                 print('meaningful_add_face_id:',meaningful)
