@@ -42,7 +42,7 @@ if __name__ == '__main__':
     with open(filename,'rb') as fp:
             time_indexer_read = pickle.load(fp)
     
-    mc.set(user_id, time_indexer_read)
+    mc.set(user_id + "_time", time_indexer_read)
     fp.close()
     
     print(time_indexer_read[0])
@@ -72,7 +72,7 @@ if __name__ == '__main__':
     with open(filename,'rb') as fp:
             img_indexer_read = pickle.load(fp)
     
-    mc.set(user_id, img_indexer_read)
+    mc.set(user_id + "_image", img_indexer_read)
     fp.close()
     
     print_index = 0

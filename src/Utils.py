@@ -46,9 +46,6 @@ def get_similar_tags(user_id,tag_list):
             tag_final1.append(item[0])
         tag_final2.append(tag_final1)
     return tag_final2                  
-        
-        
-        
 
 def update_image_indexer(user_id, img):
     filename = get_user_path(user_id) + "/" + "image_indexer.dat"
@@ -77,7 +74,6 @@ def update_image_indexer(user_id, img):
     mc.set(user_id + "_image", indexer)
     Logger.debug('image indexer updated: ' + str(indexer))
 
->>>>>>> 63f8cec88e55ec132ec3c3841d40df1848db707e
 def get_user_path(userId):
     md5ins = md5()
     md5ins.update(userId.encode())
