@@ -1,10 +1,10 @@
 conn = new Mongo()
 db = conn.getDB("VoiceImageDB");
+user_id = "127f46fc-f21e-4911-a734-be4abfa8b318"
 
 //Lu jia zui
 var LJZname = ["IMG_1356.JPG", "IMG_1357.JPG","IMG_1358.JPG","IMG_1359.JPG","IMG_1360.JPG","IMG_1361.JPG","IMG_1362.JPG","IMG_1363.JPG","IMG_1364.JPG","IMG_1365.JPG","IMG_1366.JPG"]
 var startNum = 0;
-var 
 var LJZLocation = [31.237185, 121.525490]
 var temp = 10;
 for(i = 0; i < LJZname.length; i++) {
