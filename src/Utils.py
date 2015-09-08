@@ -20,6 +20,36 @@ import time
 
 mc = bmemcached.Client((Config.config['memcached_host'],))
 
+def get_similar_tags(user_id,tag_list):
+    filename = get_user_path(user_id) + "/" + "image_indexer.dat"
+    tag_img = mc.get(user_id)
+    if not tag_img:
+        if not os.path.exists(filename):
+            tag_img = []
+        else:
+            with open(filename,'rb') as fp:
+                tag_img = pickle.load(fp)
+        mc.set(user_id, tag_img)    
+    if tag_img is None:
+        return None
+    
+    tag_final1 = []
+    tag_final2 = [] 
+    for i in tag_list:
+        tag_unsort = []
+        for j in tag_img[0]:
+            count = fuzz.ratio(i, j)
+            if count >= 80:
+                tag_unsort.append((j,count))
+        tag_sort = sorted(tag_unsort,key = lambda x:x[1],reverse= True)
+        for item in tag_sort:
+            tag_final1.append(item[0])
+        tag_final2.append(tag_final1)
+    return tag_final2                  
+        
+        
+        
+
 def update_image_indexer(user_id, img):
     filename = get_user_path(user_id) + "/" + "image_indexer.dat"
     indexer = mc.get(user_id + "_image")
@@ -47,6 +77,7 @@ def update_image_indexer(user_id, img):
     mc.set(user_id + "_image", indexer)
     Logger.debug('image indexer updated: ' + str(indexer))
 
+>>>>>>> 63f8cec88e55ec132ec3c3841d40df1848db707e
 def get_user_path(userId):
     md5ins = md5()
     md5ins.update(userId.encode())
@@ -222,9 +253,7 @@ def translate_tags(tags):
     cv_tags = mc.get('cv_tags')
     if not cv_tags:
         cv_tags = load_cv_tags()
-        mc.set('cv_tags', json.dumps(cv_tags))
-    else:
-        cv_tags = json.loads(cv_tags.decode('utf-8'))
+        mc.set('cv_tags', cv_tags)
     
     ret = []
     pytags = [pypinyin.slug(w,separator='') for w in tags]
@@ -484,8 +513,8 @@ def get_image_by_time(user_id, time_list):
 def sort_image_by_time(img_list, time_ranges):
     # time_list: [(st, et), (st, et)]
     # img_list: [[t1, t2], [img1, img2]]
-    print('img_list:',img_list)
-    print('time_ranges',time_ranges)
+    Logger.debug('img_list:' + str(img_list))
+    Logger.debug('time_ranges' + str(time_ranges))
     sort_img = []
     for time_range in time_ranges:
         for time in img_list[0]:
@@ -493,8 +522,8 @@ def sort_image_by_time(img_list, time_ranges):
                 break
             elif time >= time_range[0]:
                 sort_img.append(img_list[1][img_list[0].index(time)])
-    print('sorted img list: ')
-    print(sort_img)
+    Logger.debug('sorted img list: ')
+    Logger.debug(sort_img)
     return sort_img
     
 def update_time_indexer(user_id, input_img_time):
@@ -533,7 +562,10 @@ def update_time_indexer(user_id, input_img_time):
 #0831 yisa
 
 if __name__ == "__main__":
+
+
     print(get_images_by_tags_array([['tag1'], ['tag2']]))
+
 #     create_face_group('wang')
 #     print(pypinyin.slug((u'测试test')))
 #     image = {'tags': ['a','b'], 'image_name':'y.jpg'}

@@ -1,7 +1,7 @@
 #Encoding=UTF8
 
 import tornado.web
-from src import MongoHelper
+import MongoHelper
 import json
 import Utils
 import Logger
@@ -13,6 +13,7 @@ class LoginHandler(tornado.web.RequestHandler):
         try:
             user_id = self.get_argument('user_name', '')
             password = self.get_argument('password', '')
+            Logger.info('userid: ' + user_id + ', pass:' + password)
             
             if user_id == '' or password == '':
                 Logger.debug('user id null')
