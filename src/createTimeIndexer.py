@@ -13,7 +13,7 @@ import bmemcached
 mc = bmemcached.Client((Config.config['memcached_host'],))
 
 if __name__ == '__main__':
-    user_id = 'f9006832-426d-4a0a-aab5-02e6ab9daf76' #modify later for specific user
+    user_id = '127f46fc-f21e-4911-a734-be4abfa8b318' #modify later for specific user
     conn = pymongo.MongoClient(Config.config['mongo_url'])
     db = conn.VoiceImageDB
     coll = db.voice_images
