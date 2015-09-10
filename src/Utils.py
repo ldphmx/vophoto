@@ -504,17 +504,11 @@ def update_time_indexer(user_id, input_img_time):
     indexer = [[], []]
     filename = get_user_path(user_id) + "/" + "time_indexer.dat"
      
-    if not os.path.exists(filename):
+    with open(filename,'rb') as fp:
+        indexer = pickle.load(fp)
+    if not indexer:
         indexer = [[input_img_time['time']], [input_img_time['image_name']]]
-    else:
-        with open(filename,'rb') as fp:
-            indexer = pickle.load(fp)
             
-    indexer[1].insert(bisect.bisect(indexer[0], input_img_time['time']), input_img_time['image_name'])
-    bisect.insort(indexer[0], input_img_time['time']) 
-    Logger.debug('update_time_indexer new indexer: ' + str(indexer))
-    if indexer is None:
-        return
     # img_list: [[t1, t2], [img1, img2]]
     indexer[1].insert(bisect.bisect(indexer[0], input_img_time['time']), input_img_time['image_name'])
     bisect.insort(indexer[0], input_img_time['time'])
