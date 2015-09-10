@@ -50,7 +50,7 @@ def get_similar_tags(user_id,tag_list):
         if not tag_final1 in tag_final2:
             tag_final2.append(tag_final1)
     return tag_final2                  
-        
+
 def update_image_indexer(user_id, img):
     filename = get_user_path(user_id) + "/" + "image_indexer.dat"
     indexer = mc.get(user_id + "_image")
@@ -137,6 +137,7 @@ def get_image_by_tags(user_id, tags):
             
     return list
 
+
 def get_image_indexer(user_id):
     filename = get_user_path(user_id) + "/" + "image_indexer.dat"
     tag_img = mc.get(user_id + "_image")
@@ -152,6 +153,7 @@ def get_image_indexer(user_id):
         return None
 
     return tag_img
+
     
 def get_meaningful_keywords(key_words):
     keys = []
@@ -431,22 +433,22 @@ def update_facename_in_person_list(face_name):
     pass
 
 ##added 0831 yisa# 
-def sort_by_location(latitude,longitude, image_list):
-    sorted_images = []
-    if not image_list:
+def sort_by_location(user_id, latitude, longitude):    
+    filename = get_user_path(user_id) + "/" + "location_indexer.dat"
+    loc_indexer = mc.get(user_id + "_location")
+    if not loc_indexer:
+        if not os.path.exists(filename):
+            loc_indexer = [[], []]
+        else:
+            with open(filename,'rb') as fp:
+                loc_indexer = pickle.load(fp)
+        mc.set(user_id + "_location", loc_indexer)
+         
+    if loc_indexer is None:
         return None
     
-    for images in image_list:
-        index_images = [[],[]]
-        for image in images:
-            x = image['location']['longitude']
-            y = image['location']['latitude']
-            index_images[0].append([x, y])
-            index_images[1].append(image['image_name'])
 # index_images = [[[14.32, 15.32], [0.89, 0.56], [6.36, 3.66]], ['img01', 'img03', 'img04']]
-        res_image_list = sort_by_closest_point(index_images, longitude, latitude)
-        sorted_images += res_image_list
-    return sorted_images
+    return sort_by_closest_point(loc_indexer, longitude, latitude)
 
 
 def sort_by_closest_point(indexer, longitude, latitude):
@@ -501,15 +503,22 @@ def sort_image_by_time(img_list, time_ranges):
 def update_time_indexer(user_id, input_img_time):
     indexer = [[], []]
     filename = get_user_path(user_id) + "/" + "time_indexer.dat"
-
-    if os.path.exists(filename):
+     
+    if not os.path.exists(filename):
+        indexer = [[input_img_time['time']], [input_img_time['image_name']]]
+    else:
         with open(filename,'rb') as fp:
             indexer = pickle.load(fp)
             
     indexer[1].insert(bisect.bisect(indexer[0], input_img_time['time']), input_img_time['image_name'])
     bisect.insort(indexer[0], input_img_time['time']) 
-    
     Logger.debug('update_time_indexer new indexer: ' + str(indexer))
+    if indexer is None:
+        return
+    # img_list: [[t1, t2], [img1, img2]]
+    indexer[1].insert(bisect.bisect(indexer[0], input_img_time['time']), input_img_time['image_name'])
+    bisect.insort(indexer[0], input_img_time['time'])
+    
     with open(filename, 'wb') as fp:
         pickle.dump(indexer,fp)
         
@@ -519,15 +528,9 @@ def update_time_indexer(user_id, input_img_time):
 #0831 yisa
 
 if __name__ == "__main__":
-
-
-    print(get_images_by_tags_array([['tag1'], ['tag2']]))
-
+    update_time_indexer('127f46fc-f21e-4911-a734-be4abfa8b318', {'image_name': 'img1', 'time': datetime(2014, 1, 9, 9, 5, 55, 11700)})
 #     create_face_group('wang')
 #     print(pypinyin.slug((u'测试test')))
 #     image = {'tags': ['a','b'], 'image_name':'y.jpg'}
 #     update_user_photo_indexer('xxx', image)
 #     print get_user_photo_indexer('xxx')
-    
-    
-    

@@ -13,7 +13,7 @@ import bmemcached
 mc = bmemcached.Client((Config.config['memcached_host'],))
 
 if __name__ == '__main__':
-    user_id = 'f9006832-426d-4a0a-aab5-02e6ab9daf76' #modify later for specific user
+    user_id = '127f46fc-f21e-4911-a734-be4abfa8b318' #modify later for specific user
     conn = pymongo.MongoClient(Config.config['mongo_url'])
     db = conn.VoiceImageDB
     coll = db.voice_images
@@ -42,7 +42,7 @@ if __name__ == '__main__':
     with open(filename,'rb') as fp:
             time_indexer_read = pickle.load(fp)
     
-    mc.set(user_id, time_indexer_read)
+    mc.set(user_id + "_time", time_indexer_read)
     fp.close()
     
     print(time_indexer_read[0])
@@ -72,10 +72,34 @@ if __name__ == '__main__':
     with open(filename,'rb') as fp:
             img_indexer_read = pickle.load(fp)
     
-    mc.set(user_id, img_indexer_read)
+    mc.set(user_id + "_image", img_indexer_read)
     fp.close()
     
     print_index = 0
+    print(img_indexer_read)
     for index_tag in img_indexer_read[0]:
         print(index_tag + ":" + str(img_indexer_read[1][print_index]))
         print_index += 1
+
+####################### LOCATION INDEX #############################
+    loc_indexer = [[], []]
+    docs = coll.find()
+    for doc in docs:
+        loc_indexer[0].append([doc['location']['longitude'], doc['location']['latitude']])
+        loc_indexer[1].append(doc['image_name'])
+        
+    filename = Utils.get_user_path(user_id) + "/" + "location_indexer.dat"
+    if os.path.isfile(filename):
+        os.remove(filename)
+     
+    with open(filename,'wb') as fp:
+        pickle.dump(loc_indexer,fp)
+    fp.close()
+         
+    with open(filename,'rb') as fp:
+            loc_indexer_read = pickle.load(fp)
+    
+    mc.set(user_id + "_location", loc_indexer_read)
+    fp.close()
+
+    print(loc_indexer_read)
