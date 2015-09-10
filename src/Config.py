@@ -6,7 +6,7 @@ config = {
     'photo_root': '/data/photos/',
     'servers': [{'name' : 'localhost', 'capacity': 100,'count': 0}],      #updated
     'image_process_batch': 10,
-    'meaningful_pos':['ns','n','ni','nl','nz','nt','nh','r'],
+    'meaningful_pos':['ns','n','ni','nl','nz','nh','r'],
     'human_name_pos':['nh','r'],
     'object_pos':['n'],
     'memcached_host': 'memcached1:11211',

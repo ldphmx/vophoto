@@ -15,8 +15,10 @@ class SearchHandler(BaseAuthenticateHandler.BaseAuthenticateHandler):
         try:
             user_id = self.get_argument('user_id', '')
             desc = self.get_argument('desc','')   #add
+#             desc = ['我_r 想_v 找_v 在_p 天安门_ns 的_u 照片_n']
             print('user_id:',user_id)
             rawTag = self.get_argument('tag', '')
+#             rawTag = '我_r 想_v 找_v 去年_nt 夏天_nt 的_u 照片_n'
             # 我_r 想_v 找_v 去年_nt 夏天_nt 在_p 西雅图_ns 农贸市场_n 的_u 照片_n
             print('rawTag:',rawTag)
             rawLocation = self.get_argument('loc','')
@@ -60,8 +62,11 @@ class SearchHandler(BaseAuthenticateHandler.BaseAuthenticateHandler):
             if face_id :
                 meaningful.extend(face_id)
                 print('meaningful_add_face_id:',meaningful)
+            Logger.debug("before cv: " + str(key_words))
             object_name = Utils.get_object_keywords(key_words)
+            Logger.debug("before cv: " + str(object_name))
             cv_tags = Utils.translate_tags(object_name)
+            Logger.debug("after cv: " + str(cv_tags))
             if cv_tags:
                 meaningful.extend(cv_tags)
                 print('meaningful_add_cv_tag:',meaningful)
@@ -71,23 +76,23 @@ class SearchHandler(BaseAuthenticateHandler.BaseAuthenticateHandler):
             time_range = NLPTimeConvertor.time_api(rawTag,user_id)
             print('time_range:',time_range)
             if time_range and rawLocation != '':
-                Timage = Utils.get_image_by_time(user_id, time_range)    
-                Tag_image = Utils.get_images_by_tag_from_Timage(user_id,meaningful,Timage,1)
-                image = Utils.sort_by_location(latitude,longitude,Tag_image)
+                image = Utils.get_image_by_time(user_id, time_range)
+#                 image = Utils.get_images_by_tag_from_Timage(user_id,meaningful,Timage)
+#                 image = Utils.sort_by_location(latitude,longitude,Tag_image)
             elif time_range and rawLocation == '':
-                Timage = Utils.get_image_by_time(user_id, time_range)
-                image = Utils.get_images_by_tag_from_Timage(user_id,meaningful,Timage,0)
+                image = Utils.get_image_by_time(user_id, time_range)
+#                 image = Utils.get_images_by_tag_from_Timage(user_id,meaningful,Timage)
             elif not time_range and rawLocation != '':
-                Tag_image = Utils.get_images_by_tag(user_id, meaningful,1)
-                print('二维list：',Tag_image)
-                image = Utils.sort_by_location(latitude,longitude,Tag_image)
+                image = Utils.get_images_by_tag(user_id, meaningful)
+#                 image = Utils.sort_by_location(latitude,longitude,Tag_image)
             elif not time_range and rawLocation == '':
-                image = Utils.get_images_by_tag(user_id, meaningful,0)
-                
+                Logger.debug('meaningful: ' + str(meaningful))
+                image = Utils.get_images_by_tag(user_id, meaningful)
 
             print('image:',image)    
             result['status'] = True
             result['image'] = image
+            Logger.debug('result: ' + str(result))
 
 
         finally:

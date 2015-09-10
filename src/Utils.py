@@ -17,22 +17,25 @@ from datetime import datetime
 import Logger
 from itertools import combinations
 import time
+import bisect
 
 mc = bmemcached.Client((Config.config['memcached_host'],))
 
 def get_similar_tags(user_id,tag_list):
     filename = get_user_path(user_id) + "/" + "image_indexer.dat"
-    tag_img = mc.get(user_id)
+    tag_img = mc.get(user_id + "_image")
     if not tag_img:
         if not os.path.exists(filename):
-            tag_img = []
+            tag_img = [[],[]]
         else:
             with open(filename,'rb') as fp:
                 tag_img = pickle.load(fp)
-        mc.set(user_id, tag_img)    
+#         mc.set(user_id + "_image", tag_img)  
+          
     if tag_img is None:
         return None
     
+    Logger.debug('indexer keys: ' + str(tag_img[0]))
     tag_final1 = []
     tag_final2 = [] 
     for i in tag_list:
@@ -44,12 +47,10 @@ def get_similar_tags(user_id,tag_list):
         tag_sort = sorted(tag_unsort,key = lambda x:x[1],reverse= True)
         for item in tag_sort:
             tag_final1.append(item[0])
-        tag_final2.append(tag_final1)
+        if not tag_final1 in tag_final2:
+            tag_final2.append(tag_final1)
     return tag_final2                  
         
-        
-        
-
 def update_image_indexer(user_id, img):
     filename = get_user_path(user_id) + "/" + "image_indexer.dat"
     indexer = mc.get(user_id + "_image")
@@ -77,7 +78,6 @@ def update_image_indexer(user_id, img):
     mc.set(user_id + "_image", indexer)
     Logger.debug('image indexer updated: ' + str(indexer))
 
->>>>>>> 63f8cec88e55ec132ec3c3841d40df1848db707e
 def get_user_path(userId):
     md5ins = md5()
     md5ins.update(userId.encode())
@@ -93,13 +93,15 @@ def generate_access_token(userId):
     md5ins.update(Config.config['access_token'].encode())
     return md5ins.hexdigest()
 
-def get_images_by_tags_array(tags_list):
-    start = time.time()
+def get_images_by_tags_array(user_id, tags_list):
+    Logger.debug('get_images_by_tags_array: ' + str(tags_list))
     image_res = []
     for tags in tags_list:
-        img_list = get_image_by_tags(tags)
+        img_list = get_image_by_tags(user_id, tags)
         image_res.append(set(img_list))
     
+    Logger.debug('get_images_by_tags_array set list: ' + str(image_res))
+    #[[set(), set()...]]
     inter_sec = []
     if len(image_res) > 1:
         for i in range(1, len(image_res) + 1):
@@ -109,6 +111,8 @@ def get_images_by_tags_array(tags_list):
                 inter.append(res)
                 
             inter_sec.append(inter)
+    else:
+        inter_sec = [image_res]
     
     final_list = []
     inter_sec.reverse()
@@ -118,29 +122,36 @@ def get_images_by_tags_array(tags_list):
                 if not t in final_list:
                     final_list.append(t)
             
-    end = time.time() - start
-    print(end)
     return final_list
     
 
-def get_image_by_tags(tags):
+def get_image_by_tags(user_id, tags):
     list = []
-    indexer = get_image_indexer()
+    indexer = get_image_indexer(user_id)
     for tag in tags:
-        if tag in indexer.keys():
-            items = indexer[tag]
+        if indexer[0].count(tag) > 0:
+            items = indexer[1][indexer[0].index(tag)]
             for item in items:
                 if not item in list:
                     list.append(item)
             
     return list
 
-def get_image_indexer():
-    return {'tag1':['img1', 'img2', 'img3'],
-            'tag2':['img4', 'img3'],
-            'tag3':['img2'],
-            'tag4':['img3', 'img5']
-            }
+def get_image_indexer(user_id):
+    filename = get_user_path(user_id) + "/" + "image_indexer.dat"
+    tag_img = mc.get(user_id + "_image")
+    if not tag_img:
+        if not os.path.exists(filename):
+            tag_img = [[],[]]
+        else:
+            with open(filename,'rb') as fp:
+                tag_img = pickle.load(fp)
+        mc.set(user_id + "_image", tag_img)  
+          
+    if tag_img is None:
+        return None
+
+    return tag_img
     
 def get_meaningful_keywords(key_words):
     keys = []
@@ -249,13 +260,16 @@ def search_images_by_tags(user_id, tags):
 # this function is used to translate natural language to cv tags
 # e.g. 小猫 is translated to cat
 def translate_tags(tags):
+    Logger.debug('translate_tags in')
     cv_tags = mc.get('cv_tags')
     if not cv_tags:
+        Logger.debug('translate_tags load from file')
         cv_tags = load_cv_tags()
         mc.set('cv_tags', cv_tags)
     
+    Logger.debug('translate_tags 3')
     ret = []
-    pytags = [pypinyin.slug(w,separator='') for w in tags]
+    pytags = [pypinyin.slug(w) for w in tags]
     for tag in pytags:
         cand = cv_tags.get(tag, [])
         ret.extend(cand)
@@ -295,7 +309,7 @@ def load_cv_tags():
     for line in file:
         items = line.strip().split(':')
         tag = items[0]
-        words = [pypinyin.slug(w,separator='') for w in items[1].split('-')]
+        words = [pypinyin.slug(w) for w in items[1].split('-')]
         for word in words:
             if not word in cv_tags.keys():
                 cv_tags[word] = []
@@ -394,65 +408,24 @@ def get_image_depend_timerange(raw_image,time_range):
     return image_unsort 
     
 ##0827##
-def get_images_by_tag(user_id, input_tags,t):
-    image_unsort = []
-    image_final = []
-    search_tags = list(set(input_tags))
-    user_img = MongoHelper.get_images_by_user(user_id)
-    print('user_img:',user_img)
-    for img in user_img:
-        pattern_tags = list(set(img['tags']))
-        count = fuzz.ratio(search_tags, pattern_tags)
-        image_unsort.append((img,count))   
-    image_sort = sorted(image_unsort,key = lambda x:x[1],reverse= True)
-    print('image_sort:',image_sort)         
-    if t == 1:
-        n = -1
-        for i in range(len(image_sort)):
-            j = i-1
-            if i == 0 or image_sort[i][1] != image_sort[j][1]:
-                n += 1
-                item = []
-                item.append(image_sort[i][0])
-                image_final.append(item)
-                print('image_final:',image_final)
-            else:
-                image_final[n].append(image_sort[i][0])
-        return image_final
-    elif t == 0:
-        for item in image_sort:
-            image_final.append(item[0]['image_name'])
-        return image_final
+def get_images_by_tag(user_id, input_tags):
+    Logger.debug('get_images_by_tag: ' + str(input_tags))
+    tags_list = get_similar_tags(user_id, input_tags)
+    Logger.debug('get_images_by_tag similar: ' + str(tags_list))
+    if not tags_list:
+        return []
+    else:
+        return get_images_by_tags_array(user_id, tags_list)
 
 ##0831##
-def get_images_by_tag_from_Timage(user_id,input_tags,Timage,t):
-    image_unsort = []
-    image_final = [[]]
-    image_final2 = []
-    search_tags = list(set(input_tags))
-    user_img = MongoHelper.get_images_by_user_and_imagename(user_id,Timage)
-    for img in user_img:
-        pattern_tags = list(set(img['tags']))
-        count = fuzz.ratio(search_tags, pattern_tags)
-        image_unsort.append((img, count))
-    image_sort = sorted(image_unsort,key = lambda x:x[1],reverse= True)         
-    if t == 1:
-        n = -1
-        for i in range(len(image_sort)):
-            j = i-1
-            if i == 0 or image_sort[i][1] != image_sort[j][1]:
-                n += 1
-                item = []
-                item.append(image_sort[i][0])
-                image_final.append(item)
-                print('image_final:',image_final)
-            else:
-                image_final[n].append(image_sort[i][0])
-        return image_final2
-    elif t == 0:
-        for item in image_sort:
-            image_final.append(item[0]['image_name'])
-        return image_final
+def get_images_by_tag_from_Timage(user_id,input_tags,Timage):
+    result = []
+    image_names = get_images_by_tag(user_id,input_tags)
+    for img in image_names:
+        if (img in Timage) and (not img in result):
+            result.append(img)
+            
+    return result
     
 def update_facename_in_person_list(face_name):
     pass
@@ -526,37 +499,22 @@ def sort_image_by_time(img_list, time_ranges):
     return sort_img
     
 def update_time_indexer(user_id, input_img_time):
-    indexer = mc.get(user_id + "_time")
+    indexer = [[], []]
     filename = get_user_path(user_id) + "/" + "time_indexer.dat"
-#     filename = 'time_indexer.dat'
-     
-    if not indexer:
-        indexer = [[input_img_time['time']], [input_img_time['image_name']]]
-        mc.set(user_id + "_time", indexer)
-    else:    
+
+    if os.path.exists(filename):
         with open(filename,'rb') as fp:
             indexer = pickle.load(fp)
+            
+    indexer[1].insert(bisect.bisect(indexer[0], input_img_time['time']), input_img_time['image_name'])
+    bisect.insort(indexer[0], input_img_time['time']) 
     
-    # img_list: [[t1, t2], [img1, img2]]
-    imgs = []
-    new_indexer = [[], []]
-    i = 0
-    while i < len(indexer[0]):
-        img = {'time': indexer[0][i], 'image_name': indexer[1][i]}
-        imgs.append(img)
-        i += 1
-    img = {'time': input_img_time['time'], 'image_name': input_img_time['image_name']}
-    imgs.append(img)
-    image_sort = sorted(imgs, key=lambda img: img['time'])
-    for img in image_sort:
-        new_indexer[0].append(img['time'])
-        new_indexer[1].append(img['image_name'])
-    mc.set(user_id + "_time", new_indexer)
-    
+    Logger.debug('update_time_indexer new indexer: ' + str(indexer))
     with open(filename, 'wb') as fp:
-        pickle.dump(new_indexer,fp)
+        pickle.dump(indexer,fp)
         
-    Logger.debug('time indexer updated:' + str(new_indexer))
+    mc.set(user_id + "_time", indexer)
+    Logger.debug('time indexer updated:' + str(indexer))
 
 #0831 yisa
 

@@ -67,22 +67,22 @@ class UploadHandler(BaseAuthenticateHandler.BaseAuthenticateHandler):
                 time = datetime(temptime.year, temptime.month, temptime.day, temptime.hour, temptime.minute, temptime.second, 17100)
                 
                 
-                key_location = rawLocation.split(',')
-                print('key_location:',key_location)
+                key_location = rawLocation.split(',') # '1122, 234, beijing, zhongguan'
+                Logger.debug('key_location: ' + str(key_location))
                 raw_location_tag = []
-                if key_location is not None and len(key_location) != 0:
+                if key_location is not None and len(key_location) > 1:
                     location = Utils.get_location_from_rawlocation(key_location)
-                    print('location',location)
+                    Logger.debug('location: ' + str(location))
                     raw_location_tag = Utils.get_tag_from_rawlocation(key_location)
-                    print('raw_location_tag',raw_location_tag)
+                    Logger.debug('raw_location_tag: ' + str(raw_location_tag))
                     tags.extend(raw_location_tag)
-                    print('tags',tags)
+                    Logger.debug('tags: ' + str(tags))
                 
             
                 image = {'user_id': userId, 'image_name': fname, 'location':location, 'desc': desc, 'tags': tags, 'time':time, 'processed': False}
                 MongoHelper.save_image(image)
                 Utils.update_time_indexer(userId,image)
-                Utils.update_image_indexer(userId, image)
+#                 Utils.update_image_indexer(userId, image)
 #                 face_name = Utils.get_human_names(rawTags)
 #                 MongoHelper.update_person_list(userId,face_name)        ##此函数未写
                 result['status'] = True

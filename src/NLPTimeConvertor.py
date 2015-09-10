@@ -429,8 +429,8 @@ def parse_nl_date(date_str):
         lunar_start = Lunardate.LunarDate(start_year, start_month, start_day).toSolarDate()
         lunar_end = Lunardate.LunarDate(end_year, end_month, end_day).toSolarDate()
         
-        start_time = datetime.datetime(lunar_start.year, lunar_start.month, lunar_start.day, 1, 1, 1, 171000)
-        end_time = datetime.datetime(lunar_end.year, lunar_end.month, lunar_end.day, 1, 1, 1, 171000)  
+        start_time = datetime.datetime(lunar_start.year, lunar_start.month, lunar_start.day, 0, 0, 1, 171000)
+        end_time = datetime.datetime(lunar_end.year, lunar_end.month, lunar_end.day, 23, 59, 59, 171000)  
           
         result.append((start_time,end_time))
         
@@ -442,14 +442,14 @@ def parse_nl_date(date_str):
                 end_year = end_year - 1
                 lunar_start = Lunardate.LunarDate(start_year, start_month, start_day).toSolarDate()
                 lunar_end = Lunardate.LunarDate(end_year, end_month, end_day).toSolarDate()
-                start_time = datetime.datetime(lunar_start.year, lunar_start.month, lunar_start.day, 1, 1, 1, 171000)
-                end_time = datetime.datetime(lunar_end.year, lunar_end.month, lunar_end.day, 1, 1, 1, 171000)   
+                start_time = datetime.datetime(lunar_start.year, lunar_start.month, lunar_start.day, 0, 0, 1, 171000)
+                end_time = datetime.datetime(lunar_end.year, lunar_end.month, lunar_end.day, 23, 59, 59, 171000)   
                 result.append((start_time,end_time))
         
         return result
     
-    start_time = datetime.datetime(start_year, start_month, start_day, 1, 1, 1, 171000)
-    end_time = datetime.datetime(end_year, end_month, end_day, 1, 1, 1, 171000)
+    start_time = datetime.datetime(start_year, start_month, start_day, 0, 0, 1, 171000)
+    end_time = datetime.datetime(end_year, end_month, end_day, 23, 59, 59, 171000)
           
     result.append((start_time,end_time))
       
@@ -460,8 +460,8 @@ def parse_nl_date(date_str):
         while(start_year > user_earliest_year):
             start_year = start_year - 1
             end_year = end_year - 1
-            start_time = datetime.datetime(start_year, start_month, start_day, 1, 1, 1, 171000)
-            end_time = datetime.datetime(end_year, end_month, end_day, 1, 1, 1, 171000)
+            start_time = datetime.datetime(start_year, start_month, start_day, 0, 0, 1, 171000)
+            end_time = datetime.datetime(end_year, end_month, end_day, 23, 59, 59, 171000)
             result.append((start_time,end_time))
     
     return result
