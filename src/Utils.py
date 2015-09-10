@@ -504,9 +504,10 @@ def update_time_indexer(user_id, input_img_time):
     indexer = [[], []]
     filename = get_user_path(user_id) + "/" + "time_indexer.dat"
      
-    with open(filename,'rb') as fp:
-        indexer = pickle.load(fp)
-    if not indexer:
+    if os.path.isfile(filename):
+        with open(filename,'rb') as fp:
+            indexer = pickle.load(fp)
+    else:
         indexer = [[input_img_time['time']], [input_img_time['image_name']]]
             
     # img_list: [[t1, t2], [img1, img2]]
