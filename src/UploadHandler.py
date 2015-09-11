@@ -76,10 +76,6 @@ class UploadHandler(BaseAuthenticateHandler.BaseAuthenticateHandler):
                 if key_location is not None and len(key_location) > 1:
                     location = Utils.get_location_from_rawlocation(key_location)
                     Logger.debug('location: ' + str(location))
-                    raw_location_tag = Utils.get_tag_from_rawlocation(key_location)
-                    Logger.debug('raw_location_tag: ' + str(raw_location_tag))
-                    tags.extend(raw_location_tag)
-                    Logger.debug('tags: ' + str(tags))
                 else:
                     location = {'longitude': 0, 'latitude': 0}
                 

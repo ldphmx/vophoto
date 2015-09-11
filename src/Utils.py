@@ -140,7 +140,6 @@ def get_image_by_tags(user_id, tags):
             
     return list
 
-
 def get_image_indexer(user_id):
     filename = get_user_path(user_id) + "/" + "image_indexer.dat"
     tag_img = mc.get(user_id + "_image")
@@ -180,32 +179,11 @@ def get_object_keywords(key_words):
             keys.append(pypinyin.slug(pair[0]))
     return keys
 
-##added by peigang
 def get_location_from_rawlocation(key_location):
     location = {}
     location['longitude'] = float(key_location[0])
     location['latitude'] = float(key_location[1])
     return location
-        
-def get_tag_from_rawlocation(key_location):
-    tags = key_location[2:]
-    tagpy = []
-    for item in tags:
-        tagpy.append(pypinyin.slug(item))
-    return tagpy
-##added by peigang
-
-def get_user_photo_location_indexer(user_id):
-    indexer = mc.get(user_id + '_location')
-    if indexer is not None:
-        return indexer
-    
-    filename = get_user_path(user_id) + "/" + "loc_indexer.dat"
-    with open(filename,'rb') as fp:
-        indexer = pickle.load(fp)
-        
-    mc.set(user_id, indexer)
-    return indexer
 
 def get_user_photo_indexer(user_id):
     indexer = mc.get(user_id)
@@ -250,20 +228,6 @@ def update_user_photo_indexer(user_id, image):
     mc.set(user_id, indexer)
     return indexer
 
-def search_images_by_tags(user_id, tags):
-    images = []
-    indexer = get_user_photo_indexer(user_id)
-    if not indexer:
-        return images
-    
-    for tag in tags:
-        photo_list = indexer[tag]
-        images.append(photo_list)
-        
-    return images
-
-# this function is used to translate natural language to cv tags
-# e.g. 小猫 is translated to cat
 def translate_tags(tags):
     Logger.debug('translate_tags in')
     cv_tags = mc.get('cv_tags')
@@ -321,18 +285,6 @@ def load_cv_tags():
             cv_tags[word].append(tag)
     
     return cv_tags
-        
-
-def get_closest_points(user_id, point):
-    indexer = get_user_photo_location_indexer(user_id)
-    if not indexer:
-        return None
-    
-    pts = np.array(indexer[0])
-    tree = spatial.KDTree(pts)
-    res = tree.query(point, k=len(indexer[1]))
-    
-    print(res)
 
 def get_human_names(raw):
     keys = []
@@ -349,54 +301,6 @@ def get_human_names(raw):
             keys.append(pypinyin.slug(pair[0]))
         
     return keys
-    
-def get_faceid_from_rawTags(raw):
-    pass
-
-###########added by yisha####################
-'''
-Search in db for nearby img by location
-@return: sorted image dictionary by distance  
-'''
-def get_images_by_location(user_id, latitude, longitude, distance=1):
-    image_unsort = []
-    user_img = MongoHelper.get_images_by_user(user_id)
-    location = user_img['location']           #update by peigang
-    for img in user_img:
-        abs_lat = abs(location['latitude'] - latitude)     #update by peigang
-        abs_lon = abs(location['longitude'] - longitude)   #update by peigang
-        if abs_lat < distance & abs_lon < distance:
-            temp = ((abs_lat + abs_lon), img)
-            image_unsort.append(temp)
-    image_sort = sorted(image_unsort, key=lambda img: img[0])
-    return image_sort[1]            #update by peigang
-
-'''
-Search in db for img with input tags
-@return: sorted image dictionary by tags, ordered by time
-'''
-##added by peigang
-def get_images_by_location_from_photos(latitude, longitude,certain_photo):
-    image_unsort = []
-    user_img = certain_photo
-    for img in user_img:
-        abs_lat = abs(img['lat'] - latitude)
-        abs_lon = abs(img['lon'] - longitude)
-        if abs_lat < 1 & abs_lon < 1:
-            temp = ((abs_lat + abs_lon), img)
-            image_unsort.append(temp)
-    image_sort = sorted(image_unsort, key=lambda img: img[0])
-    return image_sort[1]                               
-##added by peigang
-
-def get_image_depend_timerange(raw_image,time_range):
-    image_unsort = []
-    user_img = raw_image
-    for img in user_img:
-        for item in time_range:
-            if img['time'] < item[1] and img['time'] > item[0]:
-                image_unsort.append(img)
-    return image_unsort 
     
 def get_images_by_tag(user_id, input_tags, image):
     if not image:
@@ -531,8 +435,6 @@ def update_time_indexer(user_id, input_img_time):
         
     mc.set(user_id + "_time", indexer)
     Logger.debug('time indexer updated:' + str(indexer))
-
-#0831 yisa
 
 if __name__ == "__main__":
     print(get_images_by_tag('127f46fc-f21e-4911-a734-be4abfa8b318', ['test', 'xia-tian', 'bin-ma-yong'], ["IMG_1330.JPG", "IMG_1331.JPG","IMG_1332.JPG", "IMG_1347.JPG", "IMG_1367.JPG"]))
