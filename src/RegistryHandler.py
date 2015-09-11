@@ -23,6 +23,7 @@ class RegistryHandler(tornado.web.RequestHandler):
                 self.write(json.dumps(result))
                 return
             
+            Logger.debug('user_id:' + user_id + ', password:' + password)
             user = MongoHelper.get_user_by_id(user_id)
             if user is not None:
                 self.write(json.dumps(result))

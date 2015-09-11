@@ -21,35 +21,33 @@ import bisect
 
 mc = bmemcached.Client((Config.config['memcached_host'],))
 
-def get_similar_tags(user_id,tag_list):
+def get_similar_tags(user_id, input_tags):
     filename = get_user_path(user_id) + "/" + "image_indexer.dat"
-    tag_img = mc.get(user_id + "_image")
-    if not tag_img:
+    stored_tags = mc.get(user_id + "_image")
+    if not stored_tags:
         if not os.path.exists(filename):
-            tag_img = [[],[]]
+            stored_tags = [[],[]]
         else:
             with open(filename,'rb') as fp:
-                tag_img = pickle.load(fp)
-#         mc.set(user_id + "_image", tag_img)  
+                stored_tags = pickle.load(fp)
           
-    if tag_img is None:
+    if stored_tags is None:
         return None
     
-    Logger.debug('indexer keys: ' + str(tag_img[0]))
-    tag_final1 = []
-    tag_final2 = [] 
-    for i in tag_list:
-        tag_unsort = []
-        for j in tag_img[0]:
-            count = fuzz.ratio(i, j)
-            if count >= 80:
-                tag_unsort.append((j,count))
-        tag_sort = sorted(tag_unsort,key = lambda x:x[1],reverse= True)
-        for item in tag_sort:
-            tag_final1.append(item[0])
-        if not tag_final1 in tag_final2:
-            tag_final2.append(tag_final1)
-    return tag_final2                  
+    Logger.debug('indexer keys: ' + str(stored_tags[0]))
+    result = []
+    for input_tag in input_tags:
+        rate_index = []
+        tag_list = []
+        for stored_tag in stored_tags[0]:
+            rate = fuzz.ratio(input_tag, stored_tag)
+            if rate >= 80:
+                tag_list.insert(bisect.bisect(rate_index, rate), stored_tag)
+                bisect.insort(rate_index, rate)
+        result.append(tag_list)
+    
+    return result
+             
 
 def update_image_indexer(user_id, img):
     filename = get_user_path(user_id) + "/" + "image_indexer.dat"
@@ -85,6 +83,7 @@ def get_user_path(userId):
     path = Config.config['photo_root'] + md5str[0:2] + "/" + md5str[2:4] + "/" + md5str[4:6] + "/" + userId
     if not os.path.exists(path):
         os.makedirs(path)
+    Logger.debug('user path:' + path)
     return path
     
 def generate_access_token(userId):
@@ -93,12 +92,12 @@ def generate_access_token(userId):
     md5ins.update(Config.config['access_token'].encode())
     return md5ins.hexdigest()
 
-def get_images_by_tags_array(user_id, tags_list):
+def get_images_by_tags_array(user_id, tags_list, image):
     Logger.debug('get_images_by_tags_array: ' + str(tags_list))
     image_res = []
     for tags in tags_list:
         img_list = get_image_by_tags(user_id, tags)
-        image_res.append(set(img_list))
+        image_res.append(set(img_list) & set(image))
     
     Logger.debug('get_images_by_tags_array set list: ' + str(image_res))
     #[[set(), set()...]]
@@ -116,11 +115,14 @@ def get_images_by_tags_array(user_id, tags_list):
     
     final_list = []
     inter_sec.reverse()
+    image_pool = set()
     for i in inter_sec:
         for s in i:
-            for t in s:
-                if not t in final_list:
-                    final_list.append(t)
+            if not s in final_list:
+                insert_set = s - (s & image_pool)
+                if insert_set:
+                    final_list.append(insert_set)
+                image_pool  = image_pool | s
             
     return final_list
     
@@ -398,8 +400,6 @@ def get_images_by_location_from_photos(latitude, longitude,certain_photo):
 #     return image_sort
     
 
-
-##added by peigang##
 def get_image_depend_timerange(raw_image,time_range):
     image_unsort = []
     user_img = raw_image
@@ -409,17 +409,15 @@ def get_image_depend_timerange(raw_image,time_range):
                 image_unsort.append(img)
     return image_unsort 
     
-##0827##
-def get_images_by_tag(user_id, input_tags):
+def get_images_by_tag(user_id, input_tags, image):
     Logger.debug('get_images_by_tag: ' + str(input_tags))
     tags_list = get_similar_tags(user_id, input_tags)
     Logger.debug('get_images_by_tag similar: ' + str(tags_list))
     if not tags_list:
         return []
     else:
-        return get_images_by_tags_array(user_id, tags_list)
+        return get_images_by_tags_array(user_id, tags_list, image)
 
-##0831##
 def get_images_by_tag_from_Timage(user_id,input_tags,Timage):
     result = []
     image_names = get_images_by_tag(user_id,input_tags)
@@ -432,8 +430,13 @@ def get_images_by_tag_from_Timage(user_id,input_tags,Timage):
 def update_facename_in_person_list(face_name):
     pass
 
-##added 0831 yisa# 
-def sort_by_location(user_id, latitude, longitude):    
+def sort_by_location(user_id, latitude, longitude, image_list):  
+    if latitude is None or longitude is None:
+        result = []
+        for image in image_list:
+            result.extend(image)
+        return result
+    
     filename = get_user_path(user_id) + "/" + "location_indexer.dat"
     loc_indexer = mc.get(user_id + "_location")
     if not loc_indexer:
@@ -447,9 +450,17 @@ def sort_by_location(user_id, latitude, longitude):
     if loc_indexer is None:
         return None
     
-# index_images = [[[14.32, 15.32], [0.89, 0.56], [6.36, 3.66]], ['img01', 'img03', 'img04']]
-    return sort_by_closest_point(loc_indexer, longitude, latitude)
-
+    # index_images = [[[14.32, 15.32], [0.89, 0.56], [6.36, 3.66]], ['img01', 'img03', 'img04']]
+    result = []
+    for image_set in image_list:
+        unsorted_images = [[], []]
+        for image in image_set:
+            unsorted_images[0].append(loc_indexer[1].index(image))
+            unsorted_images[1].append(image)
+        sorted_image = sort_by_closest_point(unsorted_images, longitude, latitude)
+        result.extend(sorted_image)
+        
+    return result
 
 def sort_by_closest_point(indexer, longitude, latitude):
     sorted_images = []
@@ -523,8 +534,7 @@ def update_time_indexer(user_id, input_img_time):
 #0831 yisa
 
 if __name__ == "__main__":
-    update_time_indexer('127f46fc-f21e-4911-a734-be4abfa8b318', {'image_name': 'img1', 'time': datetime(2014, 1, 9, 9, 5, 55, 11700)})
-#     create_face_group('wang')
+    print(get_images_by_tag('127f46fc-f21e-4911-a734-be4abfa8b318', ['test', 'xia-tian', 'bin-ma-yong'], ["IMG_1330.JPG", "IMG_1331.JPG","IMG_1332.JPG", "IMG_1347.JPG", "IMG_1367.JPG"]))
 #     print(pypinyin.slug((u'测试test')))
 #     image = {'tags': ['a','b'], 'image_name':'y.jpg'}
 #     update_user_photo_indexer('xxx', image)
