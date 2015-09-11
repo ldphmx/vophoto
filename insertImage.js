@@ -23,9 +23,9 @@ var TAMLocation = [39.908722, 116.397499]
 temp = 10
 for(i = 0; i < TAMname.length; i++) {
 	if(!db.voice_images.findOne({"image_name": TAMname[i]})) {
-		var dateStr = "2014-03-" + temp + "T09:05:17.171Z"
+		var dateStr = "2014-08-" + temp + "T09:05:17.171Z"
 		var TAMTime = ISODate(dateStr);
-		db.voice_images.save({"user_id": user_id, "image_name": TAMname[i], "time": TAMTime, "location": {"longitude": TAMLocation[0], "latitude": TAMLocation[1]}, "desc":"", "processed": true, "tags": ["tian-an-men","test"]});
+		db.voice_images.save({"user_id": user_id, "image_name": TAMname[i], "time": TAMTime, "location": {"longitude": TAMLocation[0], "latitude": TAMLocation[1]}, "desc":"", "processed": true, "tags": ["tian-an-men", "shu-jia","test"]});
 		print("Record added as:" + TAMname[i]);
 	}
 	temp++;
@@ -37,9 +37,9 @@ var BMYLocation = [34.263161, 108.948021]
 temp = 10;
 for(i = 0; i < BMYname.length; i++) {
 	if(!db.voice_images.findOne({image_name: BMYname[i]})) {
-		var dateStr = "2014-01-" + temp + "T09:05:17.171Z"
+		var dateStr = "2014-07-" + temp + "T09:05:17.171Z"
 		var BMYTime = ISODate(dateStr);
-		db.voice_images.save({"user_id": user_id, "image_name": BMYname[i], "time": BMYTime, "location": {"longitude": BMYLocation[0], "latitude": BMYLocation[1]}, "desc":"", "processed": true, "tags": ["bing-ma-yong","test", "xia-tian"]});
+		db.voice_images.save({"user_id": user_id, "image_name": BMYname[i], "time": BMYTime, "location": {"longitude": BMYLocation[0], "latitude": BMYLocation[1]}, "desc":"", "processed": true, "tags": ["bing-ma-yong","test", "shu-jia"]});
 		print("Record added as:" + BMYname[i]);
 	}
 	temp++;
@@ -67,7 +67,7 @@ for(i = 0; i < SMname.length; i++) {
 	if(!db.voice_images.findOne({image_name: SMname[i]})) {
 		var dateStr = "2014-06-" + temp + "T09:05:17.171Z"
 		var SMdate = ISODate(dateStr);
-		db.voice_images.save({"user_id": user_id, "image_name": SMname[i], "time": SMdate, "location": {"longitude": SMLocation[0], "latitude": SMLocation[1]}, "desc":"", "processed": true, "tags": ["xia-tian","test"]});
+		db.voice_images.save({"user_id": user_id, "image_name": SMname[i], "time": SMdate, "location": {"longitude": SMLocation[0], "latitude": SMLocation[1]}, "desc":"", "processed": true, "tags": ["shu-jia","test"]});
 		print("Record added as:" + SMname[i]);
 	}
 	temp++;

@@ -97,7 +97,8 @@ def get_images_by_tags_array(user_id, tags_list, image):
     image_res = []
     for tags in tags_list:
         img_list = get_image_by_tags(user_id, tags)
-        image_res.append(set(img_list) & set(image))
+        image_res.append(set(img_list))
+    image_res.append(set(image))
     
     Logger.debug('get_images_by_tags_array set list: ' + str(image_res))
     #[[set(), set()...]]
@@ -388,18 +389,6 @@ def get_images_by_location_from_photos(latitude, longitude,certain_photo):
     return image_sort[1]                               
 ##added by peigang
 
-# def get_images_by_tag(user_id, input_tags):
-#     image_unsort = []
-#     tags = set(input_tags)
-#     user_img = MongoHelper.get_images_by_user(user_id)
-#     for img in user_img:
-#         user_tags = set(user_img['tags'])
-#         if tags.issubset(user_tags):
-#             image_unsort.append(img)
-#     image_sort = sorted(image_unsort, key=lambda img: img[6], reversed=True)   #time object at 6 index in image dictionary
-#     return image_sort
-    
-
 def get_image_depend_timerange(raw_image,time_range):
     image_unsort = []
     user_img = raw_image
@@ -410,29 +399,33 @@ def get_image_depend_timerange(raw_image,time_range):
     return image_unsort 
     
 def get_images_by_tag(user_id, input_tags, image):
+    if not image:
+        return []
+    
+    if not input_tags:
+        return image
+    
     Logger.debug('get_images_by_tag: ' + str(input_tags))
     tags_list = get_similar_tags(user_id, input_tags)
     Logger.debug('get_images_by_tag similar: ' + str(tags_list))
     if not tags_list:
         return []
     else:
-        return get_images_by_tags_array(user_id, tags_list, image)
-
-def get_images_by_tag_from_Timage(user_id,input_tags,Timage):
-    result = []
-    image_names = get_images_by_tag(user_id,input_tags)
-    for img in image_names:
-        if (img in Timage) and (not img in result):
-            result.append(img)
-            
-    return result
-    
-def update_facename_in_person_list(face_name):
-    pass
+        result = get_images_by_tags_array(user_id, tags_list, image)
+        if result:
+            return result
+        else:
+            return [set(image)]
+        
+    Logger.error('Error in get_images_by_tag')
+    return None
 
 def sort_by_location(user_id, latitude, longitude, image_list):  
+    if not image_list:
+        return []
+    
+    result = []
     if latitude is None or longitude is None:
-        result = []
         for image in image_list:
             result.extend(image)
         return result
@@ -442,25 +435,28 @@ def sort_by_location(user_id, latitude, longitude, image_list):
     if not loc_indexer:
         if not os.path.exists(filename):
             loc_indexer = [[], []]
+            for image in image_list:
+                result.extend(image)
+            return result
         else:
             with open(filename,'rb') as fp:
                 loc_indexer = pickle.load(fp)
         mc.set(user_id + "_location", loc_indexer)
-         
-    if loc_indexer is None:
-        return None
     
     # index_images = [[[14.32, 15.32], [0.89, 0.56], [6.36, 3.66]], ['img01', 'img03', 'img04']]
-    result = []
     for image_set in image_list:
         unsorted_images = [[], []]
         for image in image_set:
-            unsorted_images[0].append(loc_indexer[1].index(image))
+            unsorted_images[0].append(loc_indexer[0][loc_indexer[1].index(image)])
             unsorted_images[1].append(image)
         sorted_image = sort_by_closest_point(unsorted_images, longitude, latitude)
         result.extend(sorted_image)
         
-    return result
+    if result:
+        return result
+    else:
+        Logger.error("Error in sort_by_location")
+        return None
 
 def sort_by_closest_point(indexer, longitude, latitude):
     sorted_images = []
@@ -478,7 +474,6 @@ def sort_by_closest_point(indexer, longitude, latitude):
     return sorted_images
 
 def get_image_by_time(user_id, time_list):
-    
     filename = get_user_path(user_id) + "/" + "time_indexer.dat"
     time_indexer = mc.get(user_id + "_time")
     if not time_indexer:
@@ -489,11 +484,10 @@ def get_image_by_time(user_id, time_list):
                 time_indexer = pickle.load(fp)
         mc.set(user_id + "_time", time_indexer)
          
-    if time_indexer is None:
-        return None
+    if not time_indexer:
+        return []
 
-    time_sorted_imgs = sort_image_by_time(time_indexer, time_list)
-    return time_sorted_imgs
+    return sort_image_by_time(time_indexer, time_list)
 
 def sort_image_by_time(img_list, time_ranges):
     # time_list: [(st, et), (st, et)]
@@ -501,6 +495,10 @@ def sort_image_by_time(img_list, time_ranges):
     Logger.debug('img_list:' + str(img_list))
     Logger.debug('time_ranges' + str(time_ranges))
     sort_img = []
+    
+    if not time_ranges:
+        return img_list[1]
+    
     for time_range in time_ranges:
         for time in img_list[0]:
             if time > time_range[1]:
@@ -509,6 +507,9 @@ def sort_image_by_time(img_list, time_ranges):
                 sort_img.append(img_list[1][img_list[0].index(time)])
     Logger.debug('sorted img list: ')
     Logger.debug(sort_img)
+    
+    if not sort_img:
+        return img_list[1]
     return sort_img
     
 def update_time_indexer(user_id, input_img_time):
