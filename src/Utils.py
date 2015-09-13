@@ -13,7 +13,7 @@ import json
 import aiohttp
 import http.client
 from fuzzywuzzy import fuzz
-from datetime import datetime
+from datetime import datetime, date, timedelta
 import Logger
 from itertools import combinations
 import time
@@ -435,6 +435,50 @@ def update_time_indexer(user_id, input_img_time):
         
     mc.set(user_id + "_time", indexer)
     Logger.debug('time indexer updated:' + str(indexer))
+    
+def get_login_time(user_id):
+    new_date = date.today()
+    login_list = MongoHelper.get_login_list(user_id)
+    
+    if login_list:
+        if (login_list[-1] - new_date) is timedelta(days=0):
+            login_list = []
+        if (login_list[-1] - new_date) is timedelta(days=1):
+            login_list.append(new_date)
+    else:
+        login_list = []
+        login_list.append(new_date)
+    
+    count = len(login_list)
+    if count is 7:
+        login_list = []
+    MongoHelper.update_login_list(user_id, login_list)
+    return count
+    
+def get_img_quota(user_id, login_time):
+    quota = MongoHelper.get_img_quota(user_id)
+    
+    index = next((i for i,d in enumerate(Config.config['bonus']) if login_time in d), None)
+    if index is not None:
+        quota += Config.config['bonus'][index].get(login_time)
+        
+    new_date = date.today()
+    if new_date.day() is 1:
+        quota += Config.config['start_month_quota']
+        
+    MongoHelper.update_img_quota(user_id, quota)
+    return quota
+
+def update_user_payment(user_id, plan):
+    quota = MongoHelper.get_img_quota(user_id)
+    
+    for p in Config.config['payment_plans']:
+        if plan is p.get('name'):
+            quota += p.get('quota')
+            MongoHelper.update_img_quota(user_id, quota)
+            MongoHelper.update_user_payment(user_id, plan)
+    
+    return quota
 
 if __name__ == "__main__":
     print(get_images_by_tag('127f46fc-f21e-4911-a734-be4abfa8b318', ['test', 'xia-tian', 'bin-ma-yong'], ["IMG_1330.JPG", "IMG_1331.JPG","IMG_1332.JPG", "IMG_1347.JPG", "IMG_1367.JPG"]))

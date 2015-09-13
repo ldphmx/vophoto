@@ -15,25 +15,25 @@ class SearchHandler(BaseAuthenticateHandler.BaseAuthenticateHandler):
         Logger.debug('in search')
         try:
             user_id = self.get_argument('user_id', '')
-#             desc = self.get_argument('desc','')
+            desc = self.get_argument('desc','')
 #             desc = ['我_r 想_v 找_v 在_p 天安门_ns 的_u 照片_n']
-#             rawTag = self.get_argument('tag', '')
-            rawTag = '我_r 想_v 找_v 今年_nt 在_p 兵马俑_ns 的_u 照片_n'
+            rawTag = self.get_argument('tag', '')
+#             rawTag = '我_r 想_v 找_v 今年_nt 在_p 兵马俑_ns 的_u 照片_n'
             # 我_r 想_v 找_v 去年_nt 夏天_nt 在_p 兵马俑_ns 农贸市场_n 的_u 照片_n
             rawLocation = self.get_argument('loc','')
-#             token = self.get_argument('token','')
+            token = self.get_argument('token','')
             user = MongoHelper.get_user_by_id(user_id)
-#             Logger.info('user_id:' + user_id + ', raw tag:' + ', raw location:' + ', token:' + token)
+            Logger.info('user_id:' + user_id + ', raw tag:' + ', raw location:' + ', token:' + token)
             
-#             if token is not user['token']:
-#                 self.write(json.dumps(result))
-#                 Logger.debug('token wrong')
-#                 return
-#         
-#             if user_id == '' or rawTag == '':
-#                 Logger.debug('user id or tag null')
-#                 self.write(json.dumps(result))
-#                 return
+            if token is not user['token']:
+                self.write(json.dumps(result))
+                Logger.debug('token wrong')
+                return
+         
+            if user_id == '' or rawTag == '':
+                Logger.debug('user id or tag null')
+                self.write(json.dumps(result))
+                return
 
             key_words = rawTag.split(' ')
             if key_words is None or len(key_words) == 0:
