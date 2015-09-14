@@ -5,18 +5,7 @@ import BaseAuthenticateHandler
 import Utils
 import MongoHelper
 import Logger
-# from datetime import datetime
-# import pypinyin
-# import tornado.httpserver
-# import tornado.ioloop
-# import tornado.options
-# import tornado.web
 import tornado.gen
-# import tornado.httpclient
-# import tornado.concurrent
-# import tornado.ioloop
-# import time
-# from tornado.options import define, options
 from src import FaceUtils
 
 

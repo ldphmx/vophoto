@@ -490,6 +490,7 @@ def update_user_payment(user_id, plan):
     return quota
 
 
+
 if __name__ == "__main__":
     print(get_images_by_tag('127f46fc-f21e-4911-a734-be4abfa8b318', ['test', 'xia-tian', 'bin-ma-yong'], ["IMG_1330.JPG", "IMG_1331.JPG","IMG_1332.JPG", "IMG_1347.JPG", "IMG_1367.JPG"]))
 #     print(pypinyin.slug((u'测试test')))

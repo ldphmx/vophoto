@@ -45,7 +45,7 @@ class UploadHandler(BaseAuthenticateHandler.BaseAuthenticateHandler):
                 fname = fileinfo['filename']    
                 fh = open(path + "/" + fname, 'wb')
                 fh.write(fileinfo['body'])
-<<<<<<< HEAD
+
             finally:
                 if not MongoHelper.check_img_exist(userId, image_name):
                     if faceInfo is not '':
@@ -65,14 +65,11 @@ class UploadHandler(BaseAuthenticateHandler.BaseAuthenticateHandler):
                                 
                     key_location = rawLocation.split(',') # '1122, 234, beijing, zhongguan'
                     Logger.debug('key_location: ' + str(key_location))
-                    raw_location_tag = []
+                    
                     if key_location is not None and len(key_location) > 1:
                         location = Utils.get_location_from_rawlocation(key_location)
                         Logger.debug('location: ' + str(location))
-                        raw_location_tag = Utils.get_tag_from_rawlocation(key_location)
-                        Logger.debug('raw_location_tag: ' + str(raw_location_tag))
-                        tags.extend(raw_location_tag)
-                        Logger.debug('tags: ' + str(tags))
+                        
                                 
                             
                     image = {'user_id': userId, 'image_name': fname, 'location':location, 'desc': desc, 'tags': tags, 'time':time, 'processed': False,'face':face_final}
