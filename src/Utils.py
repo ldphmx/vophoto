@@ -525,7 +525,13 @@ def update_time_indexer(user_id, input_img_time):
     mc.set(user_id + "_time", indexer)
     Logger.debug('time indexer updated:' + str(indexer))
 
-#0831 yisa
+def update_image_tag(rawTags,userId,image_name):
+                key_words = rawTags.split(' ')
+                print('key_words:',key_words)
+                tags = get_meaningful_keywords(key_words)
+                print('tags:',tags)
+                MongoHelper.extend_tags_in_existimage(userId,image_name,tags)
+
 
 if __name__ == "__main__":
     update_time_indexer('127f46fc-f21e-4911-a734-be4abfa8b318', {'image_name': 'img1', 'time': datetime(2014, 1, 9, 9, 5, 55, 11700)})

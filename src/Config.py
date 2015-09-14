@@ -3,7 +3,7 @@
 config = {
     'access_token': 'secret',
     'mongo_url':'mongodb://localhost:27017/',
-    'photo_root': 'C:/data/photos/',
+    'photo_root': 'D:/data/photos/',
     'servers': [{'name' : 'localhost', 'capacity': 100,'count': 0}],      #updated
     'image_process_batch': 10,
     'meaningful_pos':['ns','n','ni','nl','nz','nh','r'],

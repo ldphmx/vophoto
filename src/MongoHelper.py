@@ -214,6 +214,23 @@ def get_earliest_date(user_id):
         return imgs_sort[0]
     else:
         return datetime(2014, 1, 1, 9, 30, 17, 171000) 
+    
+    
+def get_person(user_id, face_id):
+    db = conn.VoiceImageDB
+    coll = db.person_list
+    coll.create_index('user_id')
+    coll.create_index('face_id')
+    face = coll.find_one({'user_id': user_id, 'face_id': face_id})
+    return face
+
+def update_face_in_existimage(user_id,image_name,face):
+    db = conn.VoiceImageDB
+    coll = db.voice_images
+    doc = coll.find_one({'user_id': user_id,'image_name':image_name})
+    doc['face'] = face
+    doc['processed'] = False
+    coll.save(doc)
 
 
 if __name__ == "__main__":
