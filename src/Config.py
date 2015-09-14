@@ -11,5 +11,10 @@ config = {
     'object_pos':['n'],
     'memcached_host': 'localhost:11211',
     'face_api_key':'4e2bee77f4e74a5a89f725c44637b485',
-    'supported_cv_tags': ['cat', 'dog', 'bird', 'fish','computer']
+    'supported_cv_tags': ['cat', 'dog', 'bird', 'fish','computer'],
+    'payment_plans': [{'name': 'basic', 'quota': 1000},
+                      {'name': 'premium', 'quota': 5000},
+                      {'name': 'unlimited', 'quota': 100000}],
+    'bonus': [{3: 500}, {7: 1000}],
+    'start_month_quota': 1000
 }

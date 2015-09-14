@@ -29,6 +29,7 @@ import MongoHelper
 # 上周六_nt 的_u 照片_n
 # 前年_nt 的_u 照片_n
 result = []#最后得到的时间结果
+failedtime = []
 final = []#_nd 和 _nt词性的列表
 search_string = []#只含有_nt词性的列表，用于搜索具体年月日
 
@@ -273,7 +274,6 @@ def do_parse_newyeareve_day(regex,date_str):
     Logger.debug('do parse: ' + regex + " - " + date_str)
     return (12,30)#阴历
 
-#user_earliest_datetime = "2000-1-1 00:00:00 +0800"
 user_earliest_datetime = None #datetime.datetime.strptime("2010-1-1 00:00:00 +0800",'%Y-%m-%d %X %z')
 
 year_regex = [(u'(\d+)年', do_parse_raw_year),
@@ -372,6 +372,7 @@ def parse_nl_date(date_str):
     day_set = False
     festival_set = False
     islunar_set = False
+    parse_success = False;
             
     for st in date_str:
         #print('paring string is' + st)
@@ -382,11 +383,13 @@ def parse_nl_date(date_str):
         #print(res)
         if res:
             (start_year, start_month, start_day, end_year, end_month, end_day) = res
+            parse_success = True
         else:
             res = parse_year(st)
             if res:
                 (start_year, end_year) = res
                 year_set = True
+                parse_success = True
             res = parse_festival(st)
             if res:
                 (start_month,start_day) = res
@@ -394,22 +397,26 @@ def parse_nl_date(date_str):
                 month_set = True
                 day_set = True
                 festival_set =True
+                parse_success = True
             res = parse_lunar_festival(st)
             if res:
                 (start_month,start_day) = res
                 (end_month,end_day)     = res
                 month_set = True
                 day_set = True
+                parse_success = True
             if year_set and  month_set and day_set and festival_set:
                 break 
             res = parse_month(st)
             if res:
                 (start_month, end_month) = res
                 month_set = True
+                parse_success = True
             res = parse_day(st)
             if res:
                 (start_day, end_day) = res
-                day_set = True      
+                day_set = True
+                parse_success = True      
             if not year_set and not month_set and not day_set:
                 break
             
@@ -424,6 +431,10 @@ def parse_nl_date(date_str):
                     
             if not day_set:
                 (start_day, end_day) = (1,31)
+            
+            if not parse_success:#处理时间失败,无法解析,比如寒暑假等
+                failedtime.append(st)
+            parse_success = False
                 
     if islunar_set:
         lunar_start = Lunardate.LunarDate(start_year, start_month, start_day).toSolarDate()
@@ -446,7 +457,10 @@ def parse_nl_date(date_str):
                 end_time = datetime.datetime(lunar_end.year, lunar_end.month, lunar_end.day, 23, 59, 59, 171000)   
                 result.append((start_time,end_time))
         
-        return result
+        unionresult = [[],[]]
+        unionresult[0] = result;
+        unionresult[1] = failedtime;
+        return unionresult
     
     start_time = datetime.datetime(start_year, start_month, start_day, 0, 0, 1, 171000)
     end_time = datetime.datetime(end_year, end_month, end_day, 23, 59, 59, 171000)
@@ -464,7 +478,10 @@ def parse_nl_date(date_str):
             end_time = datetime.datetime(end_year, end_month, end_day, 23, 59, 59, 171000)
             result.append((start_time,end_time))
     
-    return result
+    unionresult = [[],[]]
+    unionresult[0] = result;
+    unionresult[1] = failedtime;
+    return unionresult
 
 def parse_date_item(date_str, regex):
     parse_func = None
@@ -503,6 +520,7 @@ def time_api(str,user_id):
     search_string.clear()
     final.clear()
     result.clear()
+    failedtime.clear()
     words = str.split(" ")
     global user_earliest_datetime
     user_earliest_datetime = MongoHelper.get_earliest_date(user_id)
@@ -546,7 +564,7 @@ if __name__ == "__main__":
 #     print parse_nl_date([u'秋天'])
 #     print parse_nl_date([u'冬天'])
     
-    Logger.debug(time_api( "我_r 要_v 找_v 去年_nt 端午节_nt 在_p 微软_ni 附近_nd 拍_v 的_u 照片_n",None))
+    Logger.debug(time_api( "我_r 要_v 找_v 去年_nt 暑假_nt 在_p 微软_ni 附近_nd 拍_v 的_u 照片_n",None))
     Logger.debug(time_api( "我_r 要_v 找_v 今年_nt 劳动节_nt 在_p 微软_ni 附近_nd 拍_v 的_u 照片_n",None))
     #print (Lunardate.LunarDate(1998, 9, 4).toSolarDate())
     
@@ -555,5 +573,6 @@ if __name__ == "__main__":
 #     print parse_nl_date([u'15日'])
 #     print parse_nl_date([u'2014年',u'3月份', u'15日'])
 #     print parse_nl_date([u'2014年',u'3月份'])
+
 
 

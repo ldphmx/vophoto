@@ -15,24 +15,24 @@ class UploadHandler(BaseAuthenticateHandler.BaseAuthenticateHandler):
         Logger.debug('in upload')
         try:
             userId = self.get_argument('user_id', '')
-            rawLocation = self.get_argument('loc','')   #add           
+            rawLocation = self.get_argument('loc','')          
             desc = [self.get_argument('tag', '')]
             rawTags = self.get_argument('tag', '')
             rowTime = self.get_argument('time', '')
             faceInfo = self.get_argument('face', '')
-            
-            token = self.get_argument('token','')           #add
-            image_name = self.get_argument('image_name','')    #add
+            token = self.get_argument('token','')           
+            image_name = self.get_argument('image_name','')    
             print('image_name:',image_name)
            
             user = MongoHelper.get_user_by_id(userId)
-            if token != user['token']:      #add
+            if token != user['token']: 
                 Logger.debug('token wrong')
                 return
 
             print('userId',userId)
             print('rawTags',rawTags)
             
+
             try:
                 path = Utils.get_user_path(userId)    
                         #if self.request.files:
@@ -45,6 +45,7 @@ class UploadHandler(BaseAuthenticateHandler.BaseAuthenticateHandler):
                 fname = fileinfo['filename']    
                 fh = open(path + "/" + fname, 'wb')
                 fh.write(fileinfo['body'])
+<<<<<<< HEAD
             finally:
                 if not MongoHelper.check_img_exist(userId, image_name):
                     if faceInfo is not '':
@@ -86,6 +87,7 @@ class UploadHandler(BaseAuthenticateHandler.BaseAuthenticateHandler):
                     
                     
                 result['status'] = True           
+
         finally:
             self.write(json.dumps(result))
             

@@ -18,13 +18,17 @@ class RegistryHandler(tornado.web.RequestHandler):
             user_name = self.get_argument('user_name', '').lower()
             password = self.get_argument('password', '')
             lang = self.get_argument('lang', 'zh-CN')
+            
             Logger.debug('user_id:' + user_id + ', user_name:' + user_name + ', password:' + password)
+            
             if user_id == '' or user_name == '' or password == '':
+                Logger.debug('user_id or password null')
                 self.write(json.dumps(result))
                 return
             
             user = MongoHelper.get_user_by_id(user_id)
             if user is not None:
+                Logger.debug('user_id is registered')
                 self.write(json.dumps(result))
                 return
             

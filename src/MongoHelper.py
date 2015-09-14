@@ -190,17 +190,6 @@ def check_img_exist(user_id, input_img):
             return True
     return False
 
-'''
-Get earliest date for NLP time converter
-@return: datetime object
-'''
-# def get_earliest_date(user_id):
-#     db = conn.VoiceImageDB
-#     coll = db.voice_images
-#     print(coll.find({'user_id':user_id}))
-#     img = coll.find({'user_id':user_id}).sort({'time': 1})
-#       # sort img by ascending date
-#     return img[0]['time']
 
 def get_earliest_date(user_id):
     if user_id is not None:
@@ -215,6 +204,7 @@ def get_earliest_date(user_id):
     else:
         return datetime(2014, 1, 1, 9, 30, 17, 171000) 
     
+
     
 def get_person(user_id, face_id):
     db = conn.VoiceImageDB
@@ -232,6 +222,33 @@ def update_face_in_existimage(user_id,image_name,face):
     doc['processed'] = False
     coll.save(doc)
 
+def get_login_list(user_id):
+    db = conn.VoiceImageDB
+    coll = db.user_usage
+    login_list = coll.findOne({'user_id': user_id})
+    return login_list['login_date']
+
+
+def update_login_list(user_id, login_list):
+    db = conn.VoiceImageDB
+    coll = db.user_usage
+    coll.update_one({'user_id': user_id}, {'$set': {'login_date': login_list}})
+
+def get_img_quota(user_id):
+    db = conn.VoiceImageDB
+    coll = db.user_usage
+    user = coll.findOne({'user_id': user_id})
+    return user['img_quota']
+
+def update_img_quota(user_id, quota):
+    db = conn.VoiceImageDB
+    coll = db.user_usage
+    coll.update_one({'user_id': user_id}, {'$set': {'img_quota': quota}})
+    
+def update_user_payment(user_id, plan):
+    db = conn.VoiceImageDB
+    coll = db.user_usage
+    coll.update_one({'user_id': user_id}, {'$set': {'plan_name': plan}})
 
 if __name__ == "__main__":
 #     print(get_similee_candidates_rec('wang', ['94c3aa36-90ba-47a0-af6c-c67fc2863be9']))
